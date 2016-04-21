@@ -49,7 +49,7 @@ Rack Menu
 		if not devices:
 			devices = self.jrack.devices
 		for device in devices:
-			print("{0}: {1}\n{2}\n{3}".format(device.ip, device.model, device.code, device.hostname))
+			print("{0}: {1}\n{2}\n{3}\n{4}".format(device.ip, device.model, device.code, device.hostname, device.refresh))
 			
 	def add_device(self):
 		ip = raw_input("Enter an ip: ")							# Change this to "input" when using Python 3
