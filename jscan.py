@@ -56,7 +56,7 @@ Rack Menu
 		dev = Device(ip, user=Menu.username, password=Menu.password)
 		try:
 			dev.open()
-		except Excepton as err:
+		except Exception as err:
 			print ("Unable to open connection to: " + ip)
 		else:
 			model = dev.facts['model']
