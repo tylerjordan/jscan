@@ -54,7 +54,7 @@ Rack Menu
 	def add_device(self):
 		ip = raw_input("Enter an ip: ")							# Change this to "input" when using Python 3
 		for device in self.jrack.devices:
-			if ip is device.ip:
+			if ip in device.ip:
 				print ("Device already exists.")
 				return False
 		dev = Device(ip, user=Menu.username, password=Menu.password)
