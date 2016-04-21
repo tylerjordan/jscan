@@ -54,15 +54,17 @@ Rack Menu
 	def add_device(self):
 		ip = raw_input("Enter an ip: ")							# Change this to "input" when using Python 3
 		dev = Device(ip, user=Menu.username, password=Menu.password)
-		if dev.open():
+		try:
+			dev.open():
+		except Excepton as err:
+			print ("Unable to open connection to: " + ip)
+		else:
 			model = dev.facts['model']
 			code = dev.facts['version']
 			hostname = dev.facts['hostname']
 			self.jrack.new_device(ip, model, code, hostname)
 			dev.close()
 			print("Your new device has been added.")
-		else:
-			print("Unable to open connection to: " + ip)
 		
 	def refresh_device(self):
 		pass
