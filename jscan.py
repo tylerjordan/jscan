@@ -10,7 +10,7 @@ from jrack import JRack, JDevice
 
 class Menu:
 	username = "tjordan"
-	password = "lab123"
+	password = "ah64dlb"
 	
 	'''Display a menu and respond to choices when run.'''
 	def __init__(self):
