@@ -1,6 +1,6 @@
 # Author: Tyler Jordan
 # File: jscan.py
-# Last Modified: 4/21/2016
+# Last Modified: 5/2/2016
 # Description: main execution file, starts the top-level menu
 
 import os, sys
@@ -46,30 +46,36 @@ Rack Menu
 				print("{0} is not a valid choice".format(choice))
 	
 	def show_devices(self, devices=None):
+		''' View all the devices in list.'''
 		if not devices:
 			devices = self.jrack.devices
 		for device in devices:
-			print("{0}: {1}\n{2}\n{3}\n{4}".format(device.ip, device.model, device.code, device.hostname, device.refresh))
+			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(device.ip, device.model, device.code, device.hostname, device.refresh))
 			
 	def add_device(self):
+		''' Add devices to the list.'''
 		ip = raw_input("Enter an ip: ")							# Change this to "input" when using Python 3
+		new_device = True
+		''' Make sure this device is not already in the list.'''
 		for device in self.jrack.devices:
 			if ip in device.ip:
-				print ("Device already exists.")
-				return False
-		dev = Device(ip, user=Menu.username, password=Menu.password)
-		try:
-			dev.open()
-		except Exception as err:
-			print ("Unable to open connection to: " + ip)
-		else:
-			model = dev.facts['model']
-			code = dev.facts['version']
-			hostname = dev.facts['hostname']
-			self.jrack.new_device(ip, model, code, hostname)
-			dev.close()
-			print("Your new device has been added.")
-		
+				print 'Device {ip} already exists.'.format(ip)
+				new_device = False
+				break
+		if new_device:
+			dev = Device(ip, user=Menu.username, password=Menu.password)
+			try:
+				dev.open()
+			except Exception as err:
+				print ("Unable to open connection to: " + ip)
+			else:
+				model = dev.facts['model']
+				code = dev.facts['version']
+				hostname = dev.facts['hostname']
+				self.jrack.new_device(ip, model, code, hostname)
+				dev.close()
+				print("Your new device has been added.")
+
 	def refresh_device(self):
 		pass
 	

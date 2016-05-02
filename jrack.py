@@ -22,6 +22,7 @@ class JRack:
 class JDevice:
 	
 	def __init__(self, ip, model, code, hostname):
+		''' Initialize all elements of device.'''
 		self.hostname = hostname
 		self.ip = ip
 		self.model = model
@@ -30,4 +31,5 @@ class JDevice:
 		self.active = True
 	
 	def refresh(self):
+		''' Resets the value after a successful scan.''' 
 		pass
