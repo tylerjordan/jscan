@@ -79,9 +79,13 @@ def getYNAnswer(question):
 # Return list of files from a directory
 def getFileList(mypath):
 	fileList = []
-	for afile in listdir(mypath):
-		if isfile(join(mypath,afile)):
-			fileList.append(afile)
+	try:
+		for afile in listdir(mypath):
+			if isfile(join(mypath,afile)):
+				fileList.append(afile)
+	except:
+		print "Error accessing directory: " + mypath
+		
 	return fileList
 
 # Method for requesting IP address target
