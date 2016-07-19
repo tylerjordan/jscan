@@ -3,7 +3,7 @@
 # Last Modified: 7/19/2016
 # Description: main execution file, starts the top-level menu
 
-import os, sys
+import os, sys, getopt
 import utility, logging
 
 from jnpr.junos import Device
@@ -11,10 +11,11 @@ from jnpr.junos.utils.sw import SW
 from jrack import JRack, JDevice
 from utility import *
 from os.path import join
+from getpass import getpass
 
 class Menu:
-	username = "admin"
-	password = "jlab123$"
+	username = ""
+	password = ""
 	list_dir = ".\\lists\\"
 	image_dir = ".\\images\\"
 	remote_path = '/var/tmp'
@@ -45,7 +46,21 @@ Rack Menu
 6. Upgrade Devices
 7. Quit
 """)
-		
+	def getargs(self, argv):
+		try:
+			opts, args = getopt.getopt(argv,"hu:p:",["user=","pass="])
+		except getopt.GetoptError:
+			print("jscan.py -u <username> -p <password>")
+			sys.exit(2)
+		for opt, arg in opts:
+			if opt == '-h':
+				print("jscan.py -u <username> -p <password>")
+				sys.exit()
+			elif opt in ("-u", "--user"):
+				Menu.username = arg
+			elif opt in ("-p", "--pass"):
+				Menu.password = arg
+	
 	def run(self):
 		'''Display the menu and respond to choices.'''
 		while True:
@@ -141,6 +156,7 @@ Rack Menu
 			# Try to open a connection to the device
 			try:
 				self.do_log('\n------------------------- Opening connection to: {0} -------------------------\n'.format(ip))
+				self.do_log('User: {0}'.format(username))
 				dev.open()
 			# If there is an error when opening the connection, display error and exit upgrade process
 			except Exception as err:
@@ -243,4 +259,5 @@ Rack Menu
 		sys.exit(0)
 
 if __name__ == "__main__":
+	Menu().getargs(sys.argv[1:])
 	Menu().run()
