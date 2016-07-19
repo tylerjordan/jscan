@@ -17,7 +17,10 @@ class JRack:
 	def new_device(self, ip, model, code, hostname):
 		'''Add a new device to the rack.'''
 		self.devices.append(JDevice(ip, model, code, hostname))
-
+	
+	def __del__(self):
+		''' Removes JRack '''
+		pass
 
 class JDevice:
 	
@@ -32,4 +35,12 @@ class JDevice:
 	
 	def refresh(self):
 		''' Resets the value after a successful scan.''' 
+		pass
+		
+	def upgrade(self, code_dest):
+		''' Upgrade a device '''
+		pass
+	
+	def __del__(self):
+		''' Removes the devices '''
 		pass

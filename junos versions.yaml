@@ -1,0 +1,151 @@
+junos:
+  - name: 10.0R
+    eeol: True
+    eos: 20130515
+  - name: 10.1R
+    eeol: False
+    eos: 20110515
+  - name: 10.2R
+    eeol: False
+    eos: 20111115
+  - name: 10.3R
+    eeol: False
+    eos: 20111221
+  - name: 10.4R
+  	eeol: True
+  	eos: 20140608
+  - name: 11.1R
+    eeol: False
+    eos: 20120515
+  - name: 11.2R
+    eeol: False
+    eos: 20130215
+  - name: 11.3R
+    eeol: False
+    eos: 20130315
+  - name: 11.4R
+    eeol: True
+    eos: 20150621
+  - name: 12.1R
+    eeol: False
+    eos: 20140928
+  - name: 12.1X44
+    eeol: True
+    eos: 20160718
+    avail:
+      - SRX
+  - name: 12.1X45
+  	eeol: False
+  	eos: 20150117
+  	avail:
+  	  - SRX
+  - name: 12.1X46
+    eeol: True
+    eos: 20170630
+    avail:
+      - SRX
+  - name: 12.1X47
+    eeol: False
+    eos: 20170218
+    avail:
+      - SRX
+  - name: 12.1X48
+    eeol: False
+    eos: 20150630
+  - name: 12.1X49
+    eeol: False
+    eos: 20141019
+  - name: 12.2R
+    eeol: False
+    eos: 20150305
+  - name: 12.2X50
+    eeol: False
+    eos: 20150731
+  - name: 12.3R
+    eeol: True
+    eos: 20160731
+    avail:
+      - EX4200
+      - EX4300
+      - EX4550
+      - EX6210
+      - MX
+  - name: 12.3X48
+    eeol: True
+    eos: 20220630
+    avail:
+      - SRX
+  - name: 12.3X50
+    eeol: False
+    eos: 20160731
+  - name: 12.3X51
+    eeol: False
+    eos: 20150915
+    avail:
+      - ACX
+  - name: 12.3X52
+    eeol: False
+    eos: 20160223
+    avail:
+      - ACX
+  - name: 12.3X54
+    eeol: False
+    eos: 20170118
+  - name: 13.1R
+    eeol: False
+    eos: 20150915
+  - name: 13.1X50
+    eeol: False
+    eos: 20151230
+  - name: 13.2R
+    eeol: False
+    eos: 20160229
+  - name: 13.2X50
+    eeol: False
+    eos: 20141228
+  - name: 13.2X51
+    eeol: False
+    eos: 20160630
+    avail:
+      - EX4200
+      - EX4300
+      - EX4550
+      - EX6210
+  - name: 13.2X52
+    eeol: False
+    eos: 20161231
+  - name: 13.3R
+    eeol: True
+    eos: 20170722
+    avail:
+      - MX
+  - name: 14.1R
+    eeol: True
+    eos: 20180613
+    avail:
+      - MX
+  - name: 14.1X53
+    eeol: False
+    eos: 20190630
+    avail:
+      - EX4200
+      - EX4300
+      - EX4550
+      - EX6210
+  - name: 14.2R
+    eeol: True
+    eos: 20180505
+    avail:
+      - EX4200
+      - EX4550
+      - EX6210
+      - MX
+  - name: 15.1
+    eeol: False
+    eos: 20210501
+    avail:
+      - EX4550
+      - EX6210
+  - name: 15.1X49
+    eeol: False
+    eos: 20171230

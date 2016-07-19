@@ -1,9 +1,9 @@
 # File: utility.py
 # Author: Tyler Jordan
-# Modified: 12/15/2014
+# Modified: 7/19/2016
 # Purpose: Assist CBP engineers with Juniper configuration tasks
 
-import sys
+import sys, re
 import fileinput
 import glob
 import code
@@ -11,13 +11,10 @@ import code
 from os import listdir
 from os.path import isfile, join
 
-user = 'root'
-passwd = 'ah64dlb'
-
 #--------------------------------------
 # ANSWER METHODS
 #--------------------------------------
-# Method for asking a question that has a single answer
+# Method for asking a question that has a single answer, returns answer
 def getOptionAnswer(question, options):
 	answer = ""
 	loop = 0;
@@ -30,6 +27,22 @@ def getOptionAnswer(question, options):
 		if answer >= "1" and answer <= str(loop):
 			index = int(answer) - 1
 			return options[index]
+		else:
+			print "Bad Selection"
+			answer = ""
+			
+# Method for asking a question that has a single answer, returns answer index
+def getOptionAnswerIndex(question, options):
+	answer = ""
+	loop = 0;
+	while not answer:
+		print question + '?:\n'
+		for option in options:
+			loop += 1
+			print '[' + str(loop) + '] -> ' + option
+		answer = raw_input('Your Selection: ')
+		if answer >= "1" and answer <= str(loop):
+			return index
 		else:
 			print "Bad Selection"
 			answer = ""
@@ -161,7 +174,7 @@ def chooseDevices():
 
 	return ip_list
 	
-# Writes the listDict to a file with CSV format
+# Converts listDict to CSV file
 def listDictCSV(myListDict, fileName, keys):
 	
 	try:
@@ -184,4 +197,37 @@ def listDictCSV(myListDict, fileName, keys):
 	f.close()
 	print "Completed writing commands."
 
-# Check if file is in "set" format
+# Converts CSV file to listDict
+def csvListDict(fileName):
+	myListDict = []
+	try:
+		with open(fileName) as myfile:
+			firstline = True
+			for line in myfile:
+				if firstline:
+					mykeys = "".join(line.split()).split(',')
+					firstline = False
+				else:
+					values = "".join(line.split()).split(',')
+					a.append({mykeys[n]:values[n] for n in range(0,len(mykeys))})
+	except:
+		print "Failure converting CSV to listDict"
+	return myListDict
+
+# Creates a list of valid files based off regex match
+def jinstallFilter(filedir, model):
+	fileList = getFileList(filedir)
+	filterList = []
+	for oneFile in fileList:
+		m = re.match("jinstall(\d{2}\-|\-)\w{2,5}\-\d{1,5}.*", oneFile)
+		if m:
+			fullFile = oneFile.split("-")
+			fileModel = fullFile[1].upper() + fullFile[2]
+			devicemod = model.split("-")
+			deviceModel = devicemod[0]
+			print("DeviceModel:" + deviceModel[0:4] + " FileModel:" + fileModel[0:4])
+			if fileModel[0:4] == deviceModel[0:4]:
+				filterList.append(oneFile)
+		else:
+			filterList.append(oneFile)
+	return filterList
