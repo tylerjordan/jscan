@@ -42,7 +42,7 @@ def getOptionAnswerIndex(question, options):
 			print '[' + str(loop) + '] -> ' + option
 		answer = raw_input('Your Selection: ')
 		if answer >= "1" and answer <= str(loop):
-			return index
+			return answer
 		else:
 			print "Bad Selection"
 			answer = ""
@@ -225,7 +225,7 @@ def jinstallFilter(filedir, model):
 			fileModel = fullFile[1].upper() + fullFile[2]
 			devicemod = model.split("-")
 			deviceModel = devicemod[0]
-			print("DeviceModel:" + deviceModel[0:4] + " FileModel:" + fileModel[0:4])
+			#print("DeviceModel:" + deviceModel[0:4] + " FileModel:" + fileModel[0:4])
 			if fileModel[0:4] == deviceModel[0:4]:
 				filterList.append(oneFile)
 		else:

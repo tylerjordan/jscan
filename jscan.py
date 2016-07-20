@@ -47,6 +47,7 @@ Rack Menu
 7. Quit
 """)
 	def getargs(self, argv):
+		''' Interprets and handles the command line arguments '''
 		try:
 			opts, args = getopt.getopt(argv,"hu:p:",["user=","pass="])
 		except getopt.GetoptError:
@@ -142,8 +143,9 @@ Rack Menu
 			else:
 				print("Skipping Device: " + ip )
 	
-	def upgrade_device(self, ip, new_code, reboot=None):
+	def upgrade_device(self, ip, new_code, reboot="askReboot"):
 		''' Upgrade single device. '''
+		print("\n\nStarting Upgrade on Device: " + ip)
 		print("Loading JunOS: " + new_code + " ...")
 		fullPathFile = Menu.image_dir + new_code
 		logging.basicConfig(filename=Menu.logfile, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
@@ -155,8 +157,9 @@ Rack Menu
 			dev = Device(ip,user=Menu.username,password=Menu.password)
 			# Try to open a connection to the device
 			try:
-				self.do_log('\n------------------------- Opening connection to: {0} -------------------------\n'.format(ip))
-				self.do_log('User: {0}'.format(username))
+				self.do_log('\n')
+				self.do_log('------------------------- Opening connection to: {0} -------------------------\n'.format(ip))
+				self.do_log('User: {0}'.format(Menu.username))
 				dev.open()
 			# If there is an error when opening the connection, display error and exit upgrade process
 			except Exception as err:
@@ -170,27 +173,31 @@ Rack Menu
 				try:
 					self.do_log('Starting the software upgrade process: {0}'.format(new_code))
 					ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=True, validate=True)
+					# Failed install method...
+					#ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=self.update_progress, validate=True)
 				except Exception as err:
 					msg = 'Unable to install software, {0}'.format(err) 
 					self.do_log(msg, level='error')
 				else:
 					if ok is True:
 						self.do_log('Software installation complete.')
-						if reboot == None:
+						if reboot == "askReboot":
 							answer = getYNAnswer('Would you like to reboot')
 							if answer == 'y':
-								reboot = True
+								reboot = "doReboot"
 							else:
-								reboot = False
-						if reboot is True:
+								reboot = "noReboot"
+						if reboot == "doReboot":
 							rsp = sw.reboot()
 							self.do_log('Upgrade pending reboot cycle, please be patient.')
 							self.do_log(rsp)
-						else:
+						elif reboot == "noReboot":
 							self.do_log('Reboot NOT performed. System must be rebooted to complete upgrade.')
-					# End the NETCONF session and close the connection
-				self.do_log('\n------------------------- Closing connection to: {0} -------------------------\n'.format(ip))
+				
+				# End the NETCONF session and close the connection
 				dev.close()
+				self.do_log('\n')
+				self.do_log('------------------------- Closed connection to: {0} -------------------------\n'.format(ip))
 		else:
 			msg = 'Software package does not exist: {0}. '.format(fullPathFile)
 			sys.exit(msg + '\nExiting program')
@@ -205,17 +212,19 @@ Rack Menu
 		# Get Reboot Preference
 		reboot = None
 		myoptions = ['Reboot ALL devices automatically', 'Do not reboot ANY device', 'Ask for ALL devices']
-		answer = getOptionAnswer("How would you like to handle reboots", myoptions)
-		if answer == "1": reboot = True
-		elif answer == "2": reboot = False
+		answer = getOptionAnswerIndex("How would you like to handle reboots", myoptions)
+		print("Answer: " + answer)
+		if answer == "1": reboot = "doReboot"
+		elif answer == "2": reboot = "noReboot"
+		elif answer == "3": reboot = "askReboot"
 		
 		# Get Code Upgrade For Each Device or Load From a CSV
 		for device in devices:
-			print("*****| " + device.hostname + " |*****")
+			print("\n*****| " + device.hostname + " |*****")
 			print("IP: " + device.ip)
 			print("Model: " + device.model)
 			print("Current Code: " + device.code)
-			print("********************************************")
+			print("********************************************\n")
 			
 			myvalues = []
 			filteredList = jinstallFilter(Menu.image_dir, device.model)
@@ -237,17 +246,19 @@ Rack Menu
 		for item in listDict:
 			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(item['ip_addr'], item['model'], item['old_code'], item['new_code'], item['reboot']))
 		print("-------------------------------------")
+		# Last confirmation before entering loop
+		verified = getYNAnswer("Please Verify the information above. Continue")
 		
 		# Upgrade Loop
-		for item in listDict:
-			keepGoing = getYNAnswer("Proceed to device; " + item['ip_addr'])
-			if keepGoing == 'y':
+		if verified == 'y':
+			for item in listDict:
 				self.upgrade_device(item['ip_addr'], item['new_code'], item['reboot'])
-			else:
-				print("Skipped: " + item['ip_addr'])
+		else:
+			print("Aborted Upgrade! Returning to Main Menu.")
 
 	def do_log(self, msg, level='info'):
 	    getattr(logging, level)(msg)
+	    print("--> " + msg)
 
 	def update_progress(self, dev, report):
 	    # log the progress of the installing process
