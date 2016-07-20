@@ -5,13 +5,14 @@
 
 import os, sys, getopt
 import utility, logging
+import datetime
 
 from jnpr.junos import Device
 from jnpr.junos.utils.sw import SW
 from jrack import JRack, JDevice
 from utility import *
 from os.path import join
-from getpass import getpass
+from datetime import datetime
 
 class Menu:
 	username = ""
@@ -77,6 +78,7 @@ Rack Menu
 		''' View all the devices in list.'''
 		if not devices:
 			devices = self.jrack.devices
+		print("--- IP ---\t--- Model ---\t--- Code ---\t--- Host ---\t--- Last Updated ---")
 		for device in devices:
 			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(device.ip, device.model, device.code, device.hostname, device.refresh))
 			
@@ -243,6 +245,7 @@ Rack Menu
 			print("-------")
 		print("-------")
 		print("------- Upgrade Specifications --------")
+		print("--- IP ---\t--- Model ---\t--- Curr Code ---\t\t--- Target Code ---\t\t--- Reboot ---")
 		for item in listDict:
 			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(item['ip_addr'], item['model'], item['old_code'], item['new_code'], item['reboot']))
 		print("-------------------------------------")
