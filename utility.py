@@ -17,56 +17,35 @@ from os.path import isfile, join
 # Method for asking a question that has a single answer, returns answer
 def getOptionAnswer(question, options):
 	answer = ""
-	loop = 0;
+	loop = 0
 	while not answer:
 		print question + '?:\n'
 		for option in options:
 			loop += 1
 			print '[' + str(loop) + '] -> ' + option
 		answer = raw_input('Your Selection: ')
-		if answer >= "1" and answer <= str(loop):
+		if int(answer) >= 1 and int(answer) <= loop:
 			index = int(answer) - 1
 			return options[index]
 		else:
 			print "Bad Selection"
-			answer = ""
+			loop = 0
 			
 # Method for asking a question that has a single answer, returns answer index
 def getOptionAnswerIndex(question, options):
 	answer = ""
-	loop = 0;
+	loop = 0
 	while not answer:
 		print question + '?:\n'
 		for option in options:
 			loop += 1
 			print '[' + str(loop) + '] -> ' + option
 		answer = raw_input('Your Selection: ')
-		if answer >= "1" and answer <= str(loop):
+		if int(answer) >= 1 and int(answer) <= loop:
 			return answer
 		else:
 			print "Bad Selection"
-			answer = ""
-
-# Method for asking a question, with multiple options, and multiple answers
-def getMultiAnswer(question, options):
-	answer = ""
-	answers = {}
-	loop = 0;
-	while not answer:
-		print question + '?:\n'
-		for option in options:
-			loop += 1
-			print '[' + str(loop) + '] -> ' + option
-		print '[x] -> Submit Selections'
-		answer = raw_input('Your Selection: ')
-		if answer >= "1" and answer <= str(loop):
-			index = int(answer) - 1
-			answers.append(options[index])
-		elif answer == "x":
-			return answers
-		else:
-			print "Bad Selection"
-			answer = ""
+			loop = 0
 
 # Method for asking a user input question
 def getInputAnswer(question):
@@ -214,20 +193,22 @@ def csvListDict(fileName):
 		print "Failure converting CSV to listDict"
 	return myListDict
 
-# Creates a list of valid files based off regex match
-def jinstallFilter(filedir, model):
-	fileList = getFileList(filedir)
-	filterList = []
-	for oneFile in fileList:
-		m = re.match("jinstall(\d{2}\-|\-)\w{2,5}\-\d{1,5}.*", oneFile)
-		if m:
-			fullFile = oneFile.split("-")
-			fileModel = fullFile[1].upper() + fullFile[2]
-			devicemod = model.split("-")
-			deviceModel = devicemod[0]
-			#print("DeviceModel:" + deviceModel[0:4] + " FileModel:" + fileModel[0:4])
-			if fileModel[0:4] == deviceModel[0:4]:
-				filterList.append(oneFile)
-		else:
-			filterList.append(oneFile)
-	return filterList
+# Gets a target code
+def getCode(device, mypath):
+	tar_code = ""
+
+	# Does not have a target code, let's ask for one
+	print("\n" + "*"*10)
+	print("Hostname: " + device.hostname)
+	print("IP: " + device.ip)
+	print("Model: " + device.model)
+	print("Current Code: " + device.curr_code)
+	
+	fileList = getFileList(mypath)
+	if fileList:
+		tar_code = getOptionAnswer("Choose an image", fileList)
+	else:
+		print("No images available.")
+	print("*"*10 + "\n")
+	
+	return tar_code

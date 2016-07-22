@@ -3,7 +3,7 @@
 # Last Modified: 7/19/2016
 # Description: main execution file, starts the top-level menu
 
-import os, sys, getopt
+import os, sys, getopt, csv
 import utility, logging
 import datetime
 
@@ -13,6 +13,7 @@ from jrack import JRack, JDevice
 from utility import *
 from os.path import join
 from datetime import datetime
+from getpass import getpass
 
 class Menu:
 	username = ""
@@ -37,6 +38,7 @@ class Menu:
 	
 	def display_menu(self):
 		print ("""
+
 Rack Menu
 
 1. Show Devices
@@ -50,20 +52,19 @@ Rack Menu
 	def getargs(self, argv):
 		''' Interprets and handles the command line arguments '''
 		try:
-			opts, args = getopt.getopt(argv,"hu:p:",["user=","pass="])
+			opts, args = getopt.getopt(argv,"hu:",["user="])
 		except getopt.GetoptError:
-			print("jscan.py -u <username> -p <password>")
+			print("jscan.py -u <username>")
 			sys.exit(2)
 		for opt, arg in opts:
 			if opt == '-h':
-				print("jscan.py -u <username> -p <password>")
+				print("jscan.py -u <username>")
 				sys.exit()
 			elif opt in ("-u", "--user"):
 				Menu.username = arg
-			elif opt in ("-p", "--pass"):
-				Menu.password = arg
-	
+		
 	def run(self):
+		Menu.password=getpass(prompt="\nEnter your password: ")
 		'''Display the menu and respond to choices.'''
 		while True:
 			self.display_menu()
@@ -74,15 +75,16 @@ Rack Menu
 			else:
 				print("{0} is not a valid choice".format(choice))
 	
-	def show_devices(self, devices=None):
+	def show_devices(self):
 		''' View all the devices in list.'''
+		devices = self.jrack.devices
+		print("--- IP ---\t--- Model ---\t--- Curr Code ---\t--- New Code ---\t--- Host ---\t--- Last Updated ---")
 		if not devices:
-			devices = self.jrack.devices
-		print("--- IP ---\t--- Model ---\t--- Code ---\t--- Host ---\t--- Last Updated ---")
+			print(" - No Devices Loaded - ")
 		for device in devices:
-			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(device.ip, device.model, device.code, device.hostname, device.refresh))
-			
-	def add_device(self, ip=None):
+			print("{0}:\t{1}\t{2}\t{3}\t{4}\t{5}".format(device.ip, device.model, device.curr_code, device.tar_code, device.hostname, device.refresh))
+		
+	def add_device(self, ip=None, tar_code=None):
 		''' Add devices to the list.'''
 		if not ip:
 			ip = raw_input("Enter an ip: ")						# Change this to "input" when using Python 3
@@ -90,7 +92,7 @@ Rack Menu
 		''' Make sure this device is not already in the list.'''
 		for device in self.jrack.devices:
 			if ip in device.ip:
-				print("Device {0} already loaded.".format(ip))
+				print("Host: {0} ({1}) already loaded.".format(hostname, ip))
 				new_device = False
 				break
 		''' Do this if this is a new device.'''
@@ -102,10 +104,10 @@ Rack Menu
 				print("Unable to open connection to: " + ip)
 			else:
 				model = dev.facts['model']
-				code = dev.facts['version']
+				curr_code = dev.facts['version']
 				hostname = dev.facts['hostname']
-				self.jrack.new_device(ip, model, code, hostname)
-				print("Host: " + hostname + " has been added.")
+				self.jrack.new_device(ip, model, curr_code, tar_code, hostname)
+				print("Host: {0} ({1}) has been added.".format(hostname, ip))
 				dev.close()
 			
 	def load_devices(self):
@@ -114,9 +116,15 @@ Rack Menu
 		if fileList:
 			package = getOptionAnswer("Choose a list file", fileList)
 			with open(join(Menu.list_dir,package), 'r') as infile:
-				data = infile.read()
-			for ip in data.splitlines():
-				self.add_device(ip)	
+				reader = csv.DictReader(infile)
+				print("\n\n----------------------")
+				print("Scanning CSV")
+				print("----------------------\n")
+				for row in reader:
+					if not row['UPGRADE_IMG']:
+						self.add_device(row['IP_ADDR'])
+					else:
+						self.add_device(row['IP_ADDR'], row['UPGRADE_IMG'])
 
 	def refresh_device(self):
 		''' Loop through devices and update code and date/time '''
@@ -145,16 +153,17 @@ Rack Menu
 			else:
 				print("Skipping Device: " + ip )
 	
-	def upgrade_device(self, ip, new_code, reboot="askReboot"):
+	def upgrade_device(self, ip, tar_code, reboot="askReboot"):
 		''' Upgrade single device. '''
 		print("\n\nStarting Upgrade on Device: " + ip)
-		print("Loading JunOS: " + new_code + " ...")
-		fullPathFile = Menu.image_dir + new_code
+		print("Loading JunOS: " + tar_code + " ...")
+		
 		logging.basicConfig(filename=Menu.logfile, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
 		logging.getLogger().name = ip
 		sys.stdout.write('Information logged in {0}\n'.format(Menu.logfile))
 	
 		# Verify package exists before starting upgrade process
+		fullPathFile = Menu.image_dir + tar_code
 		if (os.path.isfile(fullPathFile)):
 			dev = Device(ip,user=Menu.username,password=Menu.password)
 			# Try to open a connection to the device
@@ -173,7 +182,7 @@ Rack Menu
 				# Create an instance of SW
 				sw = SW(dev)
 				try:
-					self.do_log('Starting the software upgrade process: {0}'.format(new_code))
+					self.do_log('Starting the software upgrade process: {0}'.format(tar_code))
 					ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=True, validate=True)
 					# Failed install method...
 					#ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=self.update_progress, validate=True)
@@ -207,55 +216,47 @@ Rack Menu
 	def bulk_upgrade(self):
 		''' Upgrade the devices that are currently loaded'''
 		devices = self.jrack.devices
-		# Keys for list of dictionaries
-		listDict = []
-		mykeys = ['ip_addr', 'model', 'old_code', 'new_code', 'reboot']
 		
 		# Get Reboot Preference
 		reboot = None
 		myoptions = ['Reboot ALL devices automatically', 'Do not reboot ANY device', 'Ask for ALL devices']
 		answer = getOptionAnswerIndex("How would you like to handle reboots", myoptions)
-		print("Answer: " + answer)
+
 		if answer == "1": reboot = "doReboot"
 		elif answer == "2": reboot = "noReboot"
 		elif answer == "3": reboot = "askReboot"
 		
-		# Get Code Upgrade For Each Device or Load From a CSV
+		# Get target codes if necessary and verify those that are already defined
+		print("\n\n--------------------")
+		print("Verifying Images")
+		print("--------------------\n")
 		for device in devices:
-			print("\n*****| " + device.hostname + " |*****")
-			print("IP: " + device.ip)
-			print("Model: " + device.model)
-			print("Current Code: " + device.code)
-			print("********************************************\n")
-			
-			myvalues = []
-			filteredList = jinstallFilter(Menu.image_dir, device.model)
-			if filteredList:
-				host = ''
-				new_code = getOptionAnswer("Choose an image", filteredList)
-				myvalues.append(device.ip)
-				myvalues.append(device.model)
-				myvalues.append(device.code)
-				myvalues.append(new_code)
-				myvalues.append(reboot)
-				# Assign new diectionary to List
-				listDict.append({mykeys[n]:myvalues[n] for n in range(0,len(mykeys))})
+			if device.tar_code == None:
+				# No code defined, ask for one...
+				print("{0} does not have an image, please select one...".format(device.ip))
+				device.tar_code = getCode(device, Menu.image_dir)
 			else:
-				print("No images available.")
-			print("-------")
-		print("-------")
-		print("------- Upgrade Specifications --------")
+				# Make sure file exists. If not, ask for one...
+				if not isfile(Menu.image_dir + device.tar_code):
+					print("Unable to find file: {0} ".format(device.tar_code))
+					device.tar_code = getCode(device, Menu.image_dir)
+				else:
+					print("{0} has a valid image".format(device.ip))
+				
+		print("\n\n----------------------")
+		print("Upgrade Specifications")
+		print("----------------------")
 		print("--- IP ---\t--- Model ---\t--- Curr Code ---\t\t--- Target Code ---\t\t--- Reboot ---")
-		for item in listDict:
-			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(item['ip_addr'], item['model'], item['old_code'], item['new_code'], item['reboot']))
+		for device in devices:
+			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(device.ip, device.model, device.curr_code, device.tar_code, reboot))
 		print("-------------------------------------")
 		# Last confirmation before entering loop
 		verified = getYNAnswer("Please Verify the information above. Continue")
 		
 		# Upgrade Loop
 		if verified == 'y':
-			for item in listDict:
-				self.upgrade_device(item['ip_addr'], item['new_code'], item['reboot'])
+			for device in devices:
+				self.upgrade_device(device.ip, device.tar_code, reboot)
 		else:
 			print("Aborted Upgrade! Returning to Main Menu.")
 

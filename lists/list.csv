@@ -1,3 +1,4 @@
-172.25.124.107
-172.25.124.108
-172.25.124.130
+IP_ADDR,UPGRADE_IMG
+172.25.124.107,jinstall-ex-4500-13.2X51-D35.3-domestic-signed.tgz
+172.25.124.108,
+172.25.124.130,jinstall-ex-4200-13.2X51-D35.3-domestic-signed.tgz

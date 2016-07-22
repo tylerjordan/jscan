@@ -14,9 +14,9 @@ class JRack:
 		'''Initialize a rack without any devices.'''
 		self.devices = []
 	
-	def new_device(self, ip, model, code, hostname):
+	def new_device(self, ip, model, curr_code, tar_code, hostname):
 		'''Add a new device to the rack.'''
-		self.devices.append(JDevice(ip, model, code, hostname))
+		self.devices.append(JDevice(ip, model, curr_code, tar_code, hostname))
 	
 	def __del__(self):
 		''' Removes JRack '''
@@ -24,12 +24,13 @@ class JRack:
 
 class JDevice:
 	
-	def __init__(self, ip, model, code, hostname):
+	def __init__(self, ip, model, curr_code, tar_code, hostname):
 		''' Initialize all elements of device.'''
 		self.hostname = hostname
 		self.ip = ip
 		self.model = model
-		self.code = code
+		self.curr_code = curr_code
+		self.tar_code = tar_code
 		self.refresh = datetime.now() 
 		self.active = True
 	
