@@ -929,3 +929,345 @@ information system.
 2016-07-19 22:58:06,594:ncclient.operations.rpc: Requesting 'ExecuteRpc'
 2016-07-19 22:58:06,793:ncclient.operations.rpc: Requesting 'ExecuteRpc'
 2016-07-19 22:58:06,994:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:45,809:172.25.124.107: 
+
+2016-07-23 11:19:45,839:172.25.124.107: ------------------------- Opening connection to: 172.25.124.107 -------------------------
+
+2016-07-23 11:19:45,855:172.25.124.107: User: admin
+2016-07-23 11:19:46,012:ncclient.transport.ssh: Connected (version 2.0, client OpenSSH_6.4)
+2016-07-23 11:19:46,619:ncclient.transport.ssh: Authentication (publickey) failed.
+2016-07-23 11:19:46,744:ncclient.transport.ssh: Authentication (password) successful!
+2016-07-23 11:19:48,369:ncclient.transport.session: initialized: session-id=5756 | server_capabilities=<dictionary-keyiterator object at 0x0389A750>
+2016-07-23 11:19:48,369:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:48,572:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:48,775:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:48,915:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:49,104:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:49,618:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:49,759:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:49,961:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:19:50,164:172.25.124.107: Starting the software upgrade process: jinstall-ex-4500-13.2X51-D35.3-domestic-signed.tgz
+2016-07-23 11:19:51,818:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:20:02,743:paramiko.transport: Connected (version 2.0, client OpenSSH_6.4)
+2016-07-23 11:20:03,351:paramiko.transport: Authentication (publickey) failed.
+2016-07-23 11:20:03,476:paramiko.transport: Authentication (password) successful!
+2016-07-23 11:22:00,822:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:22:03,460:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:22:51,851:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:01,779:172.25.124.107: Software installation complete.
+2016-07-23 11:24:01,779:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:01,967:172.25.124.107: Upgrade pending reboot cycle, please be patient.
+2016-07-23 11:24:01,983:172.25.124.107: Shutdown NOW!
+[pid 6161]
+2016-07-23 11:24:01,983:ncclient.operations.rpc: Requesting 'CloseSession'
+2016-07-23 11:24:02,187:172.25.124.107: 
+
+2016-07-23 11:24:02,187:172.25.124.107: ------------------------- Closed connection to: 172.25.124.107 -------------------------
+
+2016-07-23 11:24:02,187:172.25.124.108: 
+
+2016-07-23 11:24:02,187:172.25.124.108: ------------------------- Opening connection to: 172.25.124.108 -------------------------
+
+2016-07-23 11:24:02,201:172.25.124.108: User: admin
+2016-07-23 11:24:02,342:ncclient.transport.ssh: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 11:24:02,842:ncclient.transport.ssh: Authentication (publickey) failed.
+2016-07-23 11:24:02,967:ncclient.transport.ssh: Authentication (password) successful!
+2016-07-23 11:24:04,355:ncclient.transport.session: initialized: session-id=5588 | server_capabilities=<dictionary-keyiterator object at 0x03929480>
+2016-07-23 11:24:04,355:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:04,558:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:04,760:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:04,901:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:05,104:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:05,618:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:05,759:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:05,961:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:06,101:172.25.124.108: Starting the software upgrade process: jinstall-ex-4500-14.1X53-D35.3-domestic-signed.tgz
+2016-07-23 11:24:07,819:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:24:18,726:paramiko.transport: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 11:24:19,240:paramiko.transport: Authentication (publickey) failed.
+2016-07-23 11:24:19,365:paramiko.transport: Authentication (password) successful!
+2016-07-23 11:26:24,089:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:26:26,790:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:27:17,680:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:30,900:172.25.124.108: Software installation complete.
+2016-07-23 11:28:30,900:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:31,164:172.25.124.108: Upgrade pending reboot cycle, please be patient.
+2016-07-23 11:28:31,164:172.25.124.108: Shutdown NOW!
+[pid 5987]
+2016-07-23 11:28:31,164:ncclient.operations.rpc: Requesting 'CloseSession'
+2016-07-23 11:28:31,305:172.25.124.108: 
+
+2016-07-23 11:28:31,305:172.25.124.108: ------------------------- Closed connection to: 172.25.124.108 -------------------------
+
+2016-07-23 11:28:31,305:172.25.124.130: 
+
+2016-07-23 11:28:31,305:172.25.124.130: ------------------------- Opening connection to: 172.25.124.130 -------------------------
+
+2016-07-23 11:28:31,305:172.25.124.130: User: admin
+2016-07-23 11:28:31,476:ncclient.transport.ssh: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 11:28:32,006:ncclient.transport.ssh: Auth banner: . You are accessing a U.S. Government information system, which includes: 
+  (1) this computer,
+  (2) this computer network,
+  (3) all computers connected to this network, and
+  (4) all devices and storage media attached to this network or to a computer on this network
+
+  This information system is provided for U.S. Government-authorized use only.
+
+. Unauthorized or improper use or access of this system may result in
+disciplinary action, as well as civil and criminal penalties.
+
+. By using this information system, you understand and consent to the following:
+
+   o   You have no reasonable expectation of privacy when you use this
+information system; this includes any communications or data
+transiting or stored on this information system.  At any time,
+and for any lawful government purpose, the government may,
+without notice, monitor, intercept, search and seize any
+communication or data transiting or stored on this information
+system.
+
+   o   The government may disclose or use any communications or data
+transiting or stored on this information system for any lawful
+government purpose, including but not limited to law enforcement
+purposes.
+
+   o   You are NOT authorized to process classified information on this
+information system.
+
+   o   Revision 2.6 
+
+
+
+2016-07-23 11:28:32,006:ncclient.transport.ssh: Authentication (publickey) failed.
+2016-07-23 11:28:32,148:ncclient.transport.ssh: Authentication (password) successful!
+2016-07-23 11:28:33,848:ncclient.transport.session: initialized: session-id=3556 | server_capabilities=<dictionary-keyiterator object at 0x03929030>
+2016-07-23 11:28:33,848:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:34,051:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:34,253:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:34,394:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:34,535:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:35,049:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:35,253:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:35,456:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:35,595:172.25.124.130: Starting the software upgrade process: jinstall-ex-4200-14.1X53-D35.3-domestic-signed.tgz
+2016-07-23 11:28:37,407:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:28:49,249:paramiko.transport: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 11:28:49,795:paramiko.transport: Auth banner: . You are accessing a U.S. Government information system, which includes: 
+  (1) this computer,
+  (2) this computer network,
+  (3) all computers connected to this network, and
+  (4) all devices and storage media attached to this network or to a computer on this network
+
+  This information system is provided for U.S. Government-authorized use only.
+
+. Unauthorized or improper use or access of this system may result in
+disciplinary action, as well as civil and criminal penalties.
+
+. By using this information system, you understand and consent to the following:
+
+   o   You have no reasonable expectation of privacy when you use this
+information system; this includes any communications or data
+transiting or stored on this information system.  At any time,
+and for any lawful government purpose, the government may,
+without notice, monitor, intercept, search and seize any
+communication or data transiting or stored on this information
+system.
+
+   o   The government may disclose or use any communications or data
+transiting or stored on this information system for any lawful
+government purpose, including but not limited to law enforcement
+purposes.
+
+   o   You are NOT authorized to process classified information on this
+information system.
+
+   o   Revision 2.6 
+
+
+
+2016-07-23 11:28:49,795:paramiko.transport: Authentication (publickey) failed.
+2016-07-23 11:28:49,934:paramiko.transport: Authentication (password) successful!
+2016-07-23 11:30:58,282:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:31:01,483:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:32:14,542:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:33:37,134:172.25.124.130: Software installation complete.
+2016-07-23 11:33:37,134:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 11:33:37,461:172.25.124.130: Upgrade pending reboot cycle, please be patient.
+2016-07-23 11:33:37,461:172.25.124.130: Shutdown NOW!
+[pid 3882]
+2016-07-23 11:33:37,461:ncclient.operations.rpc: Requesting 'CloseSession'
+2016-07-23 11:33:37,602:172.25.124.130: 
+
+2016-07-23 11:33:37,602:172.25.124.130: ------------------------- Closed connection to: 172.25.124.130 -------------------------
+
+2016-07-23 12:15:37,576:172.25.124.107: 
+
+2016-07-23 12:15:37,576:172.25.124.107: ------------------------- Opening connection to: 172.25.124.107 -------------------------
+
+2016-07-23 12:15:37,576:172.25.124.107: User: admin
+2016-07-23 12:15:37,749:ncclient.transport.ssh: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 12:15:38,263:ncclient.transport.ssh: Authentication (publickey) failed.
+2016-07-23 12:15:38,388:ncclient.transport.ssh: Authentication (password) successful!
+2016-07-23 12:15:39,809:ncclient.transport.session: initialized: session-id=1241 | server_capabilities=<dictionary-keyiterator object at 0x038004E0>
+2016-07-23 12:15:39,809:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:40,012:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:40,153:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:40,355:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:40,496:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:40,947:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:41,151:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:41,292:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:41,493:172.25.124.107: Starting the software upgrade process: jinstall-ex-4500-14.1X53-D35.3-domestic-signed.tgz
+2016-07-23 12:15:41,759:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:15:53,101:paramiko.transport: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 12:15:53,601:paramiko.transport: Authentication (publickey) failed.
+2016-07-23 12:15:53,726:paramiko.transport: Authentication (password) successful!
+2016-07-23 12:17:59,773:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:18:02,471:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:18:53,043:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:06,025:172.25.124.107: Software installation complete.
+2016-07-23 12:20:06,025:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:06,226:172.25.124.107: Upgrade pending reboot cycle, please be patient.
+2016-07-23 12:20:06,226:172.25.124.107: Shutdown NOW!
+[pid 1635]
+2016-07-23 12:20:06,226:ncclient.operations.rpc: Requesting 'CloseSession'
+2016-07-23 12:20:06,430:172.25.124.107: 
+
+2016-07-23 12:20:06,430:172.25.124.107: ------------------------- Closed connection to: 172.25.124.107 -------------------------
+
+2016-07-23 12:20:06,430:172.25.124.108: 
+
+2016-07-23 12:20:06,430:172.25.124.108: ------------------------- Opening connection to: 172.25.124.108 -------------------------
+
+2016-07-23 12:20:06,446:172.25.124.108: User: admin
+2016-07-23 12:20:06,601:ncclient.transport.ssh: Connected (version 2.0, client OpenSSH_6.4)
+2016-07-23 12:20:07,210:ncclient.transport.ssh: Authentication (publickey) failed.
+2016-07-23 12:20:07,351:ncclient.transport.ssh: Authentication (password) successful!
+2016-07-23 12:20:08,989:ncclient.transport.session: initialized: session-id=1342 | server_capabilities=<dictionary-keyiterator object at 0x038A24E0>
+2016-07-23 12:20:08,989:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:09,191:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:09,394:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:09,535:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:09,737:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:10,190:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:10,392:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:10,595:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:10,736:172.25.124.108: Starting the software upgrade process: jinstall-ex-4500-13.2X51-D35.3-domestic-signed.tgz
+2016-07-23 12:20:10,970:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:20:22,003:paramiko.transport: Connected (version 2.0, client OpenSSH_6.4)
+2016-07-23 12:20:22,612:paramiko.transport: Authentication (publickey) failed.
+2016-07-23 12:20:22,753:paramiko.transport: Authentication (password) successful!
+2016-07-23 12:22:19,881:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:22:22,457:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:23:09,907:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:18,269:172.25.124.108: Software installation complete.
+2016-07-23 12:24:18,269:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:18,535:172.25.124.108: Upgrade pending reboot cycle, please be patient.
+2016-07-23 12:24:18,535:172.25.124.108: Shutdown NOW!
+[pid 1745]
+2016-07-23 12:24:18,535:ncclient.operations.rpc: Requesting 'CloseSession'
+2016-07-23 12:24:18,737:172.25.124.108: 
+
+2016-07-23 12:24:18,737:172.25.124.108: ------------------------- Closed connection to: 172.25.124.108 -------------------------
+
+2016-07-23 12:24:18,737:172.25.124.130: 
+
+2016-07-23 12:24:18,737:172.25.124.130: ------------------------- Opening connection to: 172.25.124.130 -------------------------
+
+2016-07-23 12:24:18,737:172.25.124.130: User: admin
+2016-07-23 12:24:18,940:ncclient.transport.ssh: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 12:24:19,549:ncclient.transport.ssh: Auth banner: . You are accessing a U.S. Government information system, which includes: 
+  (1) this computer,
+  (2) this computer network,
+  (3) all computers connected to this network, and
+  (4) all devices and storage media attached to this network or to a computer on this network
+
+  This information system is provided for U.S. Government-authorized use only.
+
+. Unauthorized or improper use or access of this system may result in
+disciplinary action, as well as civil and criminal penalties.
+
+. By using this information system, you understand and consent to the following:
+
+   o   You have no reasonable expectation of privacy when you use this
+information system; this includes any communications or data
+transiting or stored on this information system.  At any time,
+and for any lawful government purpose, the government may,
+without notice, monitor, intercept, search and seize any
+communication or data transiting or stored on this information
+system.
+
+   o   The government may disclose or use any communications or data
+transiting or stored on this information system for any lawful
+government purpose, including but not limited to law enforcement
+purposes.
+
+   o   You are NOT authorized to process classified information on this
+information system.
+
+   o   Revision 2.6 
+
+
+
+2016-07-23 12:24:19,549:ncclient.transport.ssh: Authentication (publickey) failed.
+2016-07-23 12:24:19,752:ncclient.transport.ssh: Authentication (password) successful!
+2016-07-23 12:24:21,421:ncclient.transport.session: initialized: session-id=1234 | server_capabilities=<dictionary-keyiterator object at 0x038A2AE0>
+2016-07-23 12:24:21,421:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:21,749:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:21,888:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:22,092:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:22,232:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:22,621:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:22,763:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:22,966:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:23,167:172.25.124.130: Starting the software upgrade process: jinstall-ex-4200-14.1X53-D35.3-domestic-signed.tgz
+2016-07-23 12:24:23,448:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:24:35,105:paramiko.transport: Connected (version 2.0, client OpenSSH_6.1)
+2016-07-23 12:24:35,637:paramiko.transport: Auth banner: . You are accessing a U.S. Government information system, which includes: 
+  (1) this computer,
+  (2) this computer network,
+  (3) all computers connected to this network, and
+  (4) all devices and storage media attached to this network or to a computer on this network
+
+  This information system is provided for U.S. Government-authorized use only.
+
+. Unauthorized or improper use or access of this system may result in
+disciplinary action, as well as civil and criminal penalties.
+
+. By using this information system, you understand and consent to the following:
+
+   o   You have no reasonable expectation of privacy when you use this
+information system; this includes any communications or data
+transiting or stored on this information system.  At any time,
+and for any lawful government purpose, the government may,
+without notice, monitor, intercept, search and seize any
+communication or data transiting or stored on this information
+system.
+
+   o   The government may disclose or use any communications or data
+transiting or stored on this information system for any lawful
+government purpose, including but not limited to law enforcement
+purposes.
+
+   o   You are NOT authorized to process classified information on this
+information system.
+
+   o   Revision 2.6 
+
+
+
+2016-07-23 12:24:35,637:paramiko.transport: Authentication (publickey) failed.
+2016-07-23 12:24:35,762:paramiko.transport: Authentication (password) successful!
+2016-07-23 12:26:45,507:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:26:48,707:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:28:03,993:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:29:44,125:172.25.124.130: Software installation complete.
+2016-07-23 12:29:44,125:ncclient.operations.rpc: Requesting 'ExecuteRpc'
+2016-07-23 12:29:44,453:172.25.124.130: Upgrade pending reboot cycle, please be patient.
+2016-07-23 12:29:44,453:172.25.124.130: Shutdown NOW!
+[pid 1639]
+2016-07-23 12:29:44,453:ncclient.operations.rpc: Requesting 'CloseSession'
+2016-07-23 12:29:44,592:172.25.124.130: 
+
+2016-07-23 12:29:44,592:172.25.124.130: ------------------------- Closed connection to: 172.25.124.130 -------------------------
+

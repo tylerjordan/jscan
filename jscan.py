@@ -20,8 +20,9 @@ class Menu:
 	password = ""
 	list_dir = ".\\lists\\"
 	image_dir = ".\\images\\"
-	remote_path = '/var/tmp'
-	logfile = '.\\logs\\install.log'
+	log_dir = ".\\logs\\"
+	remote_path = "/var/tmp"
+	logfile = ".\\logs\\install.log"
 	
 	'''Display a menu and respond to choices when run.'''
 	def __init__(self):
@@ -153,10 +154,19 @@ Rack Menu
 			else:
 				print("Skipping Device: " + ip )
 	
-	def upgrade_device(self, ip, tar_code, reboot="askReboot"):
+	def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
 		''' Upgrade single device. '''
-		print("\n\nStarting Upgrade on Device: " + ip)
-		print("Loading JunOS: " + tar_code + " ...")
+		# Status dictionary for post-upgrade reporting
+		statusDict = {}
+		statusDict['ip'] = ip
+		statusDict['connected'] = 0
+		statusDict['os_installed'] = 0
+		statusDict['rebooted'] = 0
+		
+		# Upgrade Process
+		print("\n\nStarting Upgrade Process on Device: {0} ({1})".format(hostname, ip))
+		print("Timestamp: {0}".format(datetime.now()))
+		print("JunOS: {0}".format(tar_code))
 		
 		logging.basicConfig(filename=Menu.logfile, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
 		logging.getLogger().name = ip
@@ -177,12 +187,15 @@ Rack Menu
 				sys.stderr.write('Cannot connect to device: {0}\n'.format(err))
 			# If
 			else:
+				# Record connection achieved
+				statusDict['connected'] = 1
 				# Increase the default RPC timeout to accommodate install operations
 				dev.timeout = 300
 				# Create an instance of SW
 				sw = SW(dev)
 				try:
 					self.do_log('Starting the software upgrade process: {0}'.format(tar_code))
+					print("Timestamp: {0}".format(datetime.now()))
 					ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=True, validate=True)
 					# Failed install method...
 					#ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=self.update_progress, validate=True)
@@ -191,7 +204,9 @@ Rack Menu
 					self.do_log(msg, level='error')
 				else:
 					if ok is True:
+						statusDict['os_installed'] = 1
 						self.do_log('Software installation complete.')
+						print("Timestamp: {0}".format(datetime.now()))
 						if reboot == "askReboot":
 							answer = getYNAnswer('Would you like to reboot')
 							if answer == 'y':
@@ -200,6 +215,7 @@ Rack Menu
 								reboot = "noReboot"
 						if reboot == "doReboot":
 							rsp = sw.reboot()
+							statusDict['rebooted'] = 1
 							self.do_log('Upgrade pending reboot cycle, please be patient.')
 							self.do_log(rsp)
 						elif reboot == "noReboot":
@@ -212,10 +228,15 @@ Rack Menu
 		else:
 			msg = 'Software package does not exist: {0}. '.format(fullPathFile)
 			sys.exit(msg + '\nExiting program')
+			
+		return statusDict
 
 	def bulk_upgrade(self):
 		''' Upgrade the devices that are currently loaded'''
 		devices = self.jrack.devices
+		
+		# List for all status dictionaries for each device
+		statusList = []
 		
 		# Get Reboot Preference
 		reboot = None
@@ -256,7 +277,24 @@ Rack Menu
 		# Upgrade Loop
 		if verified == 'y':
 			for device in devices:
-				self.upgrade_device(device.ip, device.tar_code, reboot)
+				statusDict = self.upgrade_device(device.ip, device.hostname, device.tar_code, reboot)
+				# Add status results to list
+				statusList.append(statusDict)
+			# Create CSV
+			keys = [ 'ip', 'connected', 'os_installed', 'rebooted' ]
+			listDictCSV(statusList, Menu.log_dir, 'statuslog.csv', keys)
+			
+			# Tabulate and Print Results
+			resultsDict = tabulateResults(statusList)
+			print("\n\n---------------")
+			print("Process Summary")
+			print("---------------")
+			print("Successful (rebooted): {0}".format(len(resultsDict['success_rebooted'])))
+			print("Successful (not rebooted: {0}".format(len(resultsDict['success_not_rebooted'])))
+			print("Unable to connect: {0}".format(len(resultsDict['connect_fails'])))
+			print("Software install failed: {0}".format(len(resultsDict['software_install_fails'])))
+			print("\nTOTAL DEVICES: {0}").format(resultDict['total_devices'])
+			print("---------------")
 		else:
 			print("Aborted Upgrade! Returning to Main Menu.")
 

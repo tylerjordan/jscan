@@ -154,27 +154,26 @@ def chooseDevices():
 	return ip_list
 	
 # Converts listDict to CSV file
-def listDictCSV(myListDict, fileName, keys):
-	
+def listDictCSV(myListDict, filePath, fileName, keys):
 	try:
-		f = open(fileName, 'w')
+		f = open(filePath + fileName, 'w')
 	except:
 		print "Failure opening file in write mode"
-	
-	# Write all the headings in the CSV
-	for akey in keys[:-1]:							# Runs for every element, except the last
-		f.write(akey + ",")							# Writes most elements
-	f.write(keys[-1])								# Writes last element
-	f.write("\n")
-	
-	for part in myListDict:
-		for bkey in keys[:-1]:
-			# print "Key: " + key + "  Value: " + part[key]
-			f.write(part[bkey] + ",")
-		f.write(part[keys[-1]])
+	else:
+		# Write all the headings in the CSV
+		for akey in keys[:-1]:							# Runs for every element, except the last
+			f.write(str(akey) + ",")							# Writes most elements
+		f.write(keys[-1])								# Writes last element
 		f.write("\n")
-	f.close()
-	print "Completed writing commands."
+		
+		for part in myListDict:
+			for bkey in keys[:-1]:
+				# print "Key: " + key + "  Value: " + part[key]
+				f.write(str(part[bkey]) + ",")
+			f.write(part[keys[-1]])
+			f.write("\n")
+		f.close()
+		print "Completed writing commands."
 
 # Converts CSV file to listDict
 def csvListDict(fileName):
@@ -212,3 +211,25 @@ def getCode(device, mypath):
 	print("*"*10 + "\n")
 	
 	return tar_code
+
+# Analyze listDict and create statistics
+def tabulateResults(listDict):
+	statusDict = {'success_rebooted': [],'success_not_rebooted': [], 'connect_fails': [], 'software_install_fails': [], 'total_devices': 0}
+	
+	for mydict in listDict:
+		if mydict['connected'] and mydict['os_installed']:
+			if mydict['rebooted']:
+				statusDict['success_rebooted'].append(mydict['ip'])
+			else:
+				statusDict['success_not_rebooted'].append(mydict['ip'])
+		elif mydict['connected'] and not mydict['os_installed']:
+			statusDict['software_install_fails'].append(mydict['ip'])
+		elif not mydict['connected']:
+			statusDict['connect_fails'].append(mydict['ip'])
+		else:
+			print("Error: Uncaptured Result")
+		# Every device increments this total
+		statusDict['total_devices'] += 1
+	
+	return statusDict
+				
