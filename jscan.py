@@ -12,17 +12,19 @@ from jnpr.junos.utils.sw import SW
 from jrack import JRack, JDevice
 from utility import *
 from os.path import join
-from datetime import datetime
 from getpass import getpass
 
 class Menu:
 	username = ""
 	password = ""
+	upgrade_list = ""
 	list_dir = ".\\lists\\"
 	image_dir = ".\\images\\"
 	log_dir = ".\\logs\\"
 	remote_path = "/var/tmp"
-	logfile = ".\\logs\\install.log"
+	install_log = ".\\logs\\install.log"
+	reboot_log = ".\\logs\\reboot.log"
+	status_log = ".\\logs\\Juniper_Status_Log.csv"
 	
 	'''Display a menu and respond to choices when run.'''
 	def __init__(self):
@@ -34,7 +36,8 @@ class Menu:
 			"4": self.remove_device,
 			"5": self.load_devices,
 			"6": self.bulk_upgrade,
-			"7": self.quit
+			"7": self.bulk_reboot,
+			"8": self.quit
 		}
 	
 	def display_menu(self):
@@ -47,8 +50,9 @@ Rack Menu
 3. Add Device
 4. Remove Device
 5. Load Devices
-6. Upgrade Devices
-7. Quit
+6. Bulk Upgrade
+7. Bulk Reboot
+8. Quit
 """)
 	def getargs(self, argv):
 		''' Interprets and handles the command line arguments '''
@@ -83,7 +87,7 @@ Rack Menu
 		if not devices:
 			print(" - No Devices Loaded - ")
 		for device in devices:
-			print("{0}:\t{1}\t{2}\t{3}\t{4}\t{5}".format(device.ip, device.model, device.curr_code, device.tar_code, device.hostname, device.refresh))
+			print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(device.ip, device.model, device.curr_code, device.tar_code, device.hostname, device.refresh))
 		
 	def add_device(self, ip=None, tar_code=None):
 		''' Add devices to the list.'''
@@ -115,11 +119,11 @@ Rack Menu
 		''' Load from a list of devices.'''
 		fileList = getFileList(Menu.list_dir)
 		if fileList:
-			package = getOptionAnswer("Choose a list file", fileList)
-			with open(join(Menu.list_dir,package), 'r') as infile:
+			Menu.upgrade_list = getOptionAnswer("Choose an upgrade file", fileList)
+			with open(join(Menu.list_dir,Menu.upgrade_list), 'r') as infile:
 				reader = csv.DictReader(infile)
 				print("\n\n----------------------")
-				print("Scanning CSV")
+				print("Scanning Upgrade CSV")
 				print("----------------------\n")
 				for row in reader:
 					if not row['UPGRADE_IMG']:
@@ -158,19 +162,28 @@ Rack Menu
 		''' Upgrade single device. '''
 		# Status dictionary for post-upgrade reporting
 		statusDict = {}
-		statusDict['ip'] = ip
-		statusDict['connected'] = 0
-		statusDict['os_installed'] = 0
-		statusDict['rebooted'] = 0
+		if Menu.upgrade_list == '':
+			statusDict['Upgrade_List'] = 'Juniper-Upgrade_' + Menu.username
+		else:
+			statusDict['Upgrade_List'] = Menu.upgrade_list
+		statusDict['Upgrade_Start'] = ''
+		statusDict['Upgrade_Finish'] = ''
+		statusDict['IP'] = ip
+		statusDict['Connected'] = 'N'
+		statusDict['OS_installed'] = 'N'
+		statusDict['Rebooted'] = 'N'
+		statusDict['IST_Confirm_Loaded'] = ''
+		statusDict['IST_Confirm_Rebooted'] = ''
+		statusDict['Comments'] = ''
 		
-		# Upgrade Process
-		print("\n\nStarting Upgrade Process on Device: {0} ({1})".format(hostname, ip))
-		print("Timestamp: {0}".format(datetime.now()))
-		print("JunOS: {0}".format(tar_code))
-		
-		logging.basicConfig(filename=Menu.logfile, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
+		# Start Logging
+		logging.basicConfig(filename=Menu.install_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
 		logging.getLogger().name = ip
-		sys.stdout.write('Information logged in {0}\n'.format(Menu.logfile))
+		print('Information logged in {0}'.format(Menu.install_log))
+
+		# Upgrade Information
+		self.do_log("Device: {0} ({1})".format(hostname, ip))
+		self.do_log("JunOS: {0}".format(tar_code))
 	
 		# Verify package exists before starting upgrade process
 		fullPathFile = Menu.image_dir + tar_code
@@ -188,14 +201,19 @@ Rack Menu
 			# If
 			else:
 				# Record connection achieved
-				statusDict['connected'] = 1
+				statusDict['Connected'] = 'Y'
 				# Increase the default RPC timeout to accommodate install operations
 				dev.timeout = 300
 				# Create an instance of SW
 				sw = SW(dev)
 				try:
+					# Logging...
 					self.do_log('Starting the software upgrade process: {0}'.format(tar_code))
-					print("Timestamp: {0}".format(datetime.now()))
+					now = datetime.datetime.now()
+					statusDict['Upgrade_Start'] = now.strftime("%Y-%m-%d %H:%M")
+					self.do_log('Timestamp: {0}'.format(statusDict['Upgrade_Start']))
+					
+					# Actual Upgrade Function
 					ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=True, validate=True)
 					# Failed install method...
 					#ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=self.update_progress, validate=True)
@@ -204,9 +222,13 @@ Rack Menu
 					self.do_log(msg, level='error')
 				else:
 					if ok is True:
-						statusDict['os_installed'] = 1
+						# Logging...
+						statusDict['OS_installed'] = 'Y'
 						self.do_log('Software installation complete.')
-						print("Timestamp: {0}".format(datetime.now()))
+						now = datetime.datetime.now()
+						statusDict['Upgrade_Finish'] = now.strftime("%Y-%m-%d %H:%M")
+						self.do_log('Timestamp: {0}'.format(statusDict['Upgrade_Finish']))
+						# Check rebooting status...
 						if reboot == "askReboot":
 							answer = getYNAnswer('Would you like to reboot')
 							if answer == 'y':
@@ -215,7 +237,7 @@ Rack Menu
 								reboot = "noReboot"
 						if reboot == "doReboot":
 							rsp = sw.reboot()
-							statusDict['rebooted'] = 1
+							statusDict['Rebooted'] = 'Y'
 							self.do_log('Upgrade pending reboot cycle, please be patient.')
 							self.do_log(rsp)
 						elif reboot == "noReboot":
@@ -269,34 +291,188 @@ Rack Menu
 		print("----------------------")
 		print("--- IP ---\t--- Model ---\t--- Curr Code ---\t\t--- Target Code ---\t\t--- Reboot ---")
 		for device in devices:
-			print("{0}:\t{1}\t{2}\t{3}\t{4}".format(device.ip, device.model, device.curr_code, device.tar_code, reboot))
+			print("{0}\t{1}\t{2}\t{3}\t{4}".format(device.ip, device.model, device.curr_code, device.tar_code, reboot))
 		print("-------------------------------------")
 		# Last confirmation before entering loop
 		verified = getYNAnswer("Please Verify the information above. Continue")
 		
 		# Upgrade Loop
+		#verified = 'y'
 		if verified == 'y':
+			
+			# Loop over all devices in list
 			for device in devices:
 				statusDict = self.upgrade_device(device.ip, device.hostname, device.tar_code, reboot)
 				# Add status results to list
 				statusList.append(statusDict)
+			'''
+			# StatusList Test
+			statusList = [
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:25',  'Upgrade_Finish': '7/26/2016 09:39', 'IP': '10.10.10.1', 'Connected': 'Y', 'OS_installed': 'Y', 'Rebooted': 'Y', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:40',  'Upgrade_Finish': '7/26/2016 09:54', 'IP': '10.10.10.2', 'Connected': 'Y', 'OS_installed': 'Y', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:55',  'Upgrade_Finish': '7/26/2016 10:10', 'IP': '10.10.10.3', 'Connected': 'Y', 'OS_installed': 'N', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 10:15',  'Upgrade_Finish': '7/26/2016 10:25', 'IP': '10.10.10.4', 'Connected': 'N', 'OS_installed': 'N', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''}
+			]
+			'''
 			# Create CSV
-			keys = [ 'ip', 'connected', 'os_installed', 'rebooted' ]
-			listDictCSV(statusList, Menu.log_dir, 'statuslog.csv', keys)
+			keys = [ 'Upgrade_List', 'Upgrade_Start', 'Upgrade_Finish', 'IP', 'Connected', 'OS_installed', 'Rebooted', 'IST_Confirm_Loaded', 'IST_Confirm_Rebooted', 'Comments' ]
+			listDictCSV(statusList, Menu.status_log, keys)
 			
 			# Tabulate and Print Results
-			resultsDict = tabulateResults(statusList)
+			resultsDict = tabulateUpgradeResults(statusList)
 			print("\n\n---------------")
 			print("Process Summary")
 			print("---------------")
 			print("Successful (rebooted): {0}".format(len(resultsDict['success_rebooted'])))
-			print("Successful (not rebooted: {0}".format(len(resultsDict['success_not_rebooted'])))
+			print("Successful (not rebooted): {0}".format(len(resultsDict['success_not_rebooted'])))
 			print("Unable to connect: {0}".format(len(resultsDict['connect_fails'])))
+			for myfailed in resultsDict['connect_fails']:
+				print("\t{0}".format(myfailed))
 			print("Software install failed: {0}".format(len(resultsDict['software_install_fails'])))
-			print("\nTOTAL DEVICES: {0}").format(resultDict['total_devices'])
+			for myfailed in resultsDict['software_install_fails']:
+				print("\t{0}".format(myfailed))
+			print("\nTOTAL DEVICES: {0}").format(resultsDict['total_devices'])
 			print("---------------")
 		else:
 			print("Aborted Upgrade! Returning to Main Menu.")
+	
+	def bulk_reboot(self):
+		'''Reboots the selected devices'''
+		devices = self.jrack.devices
+
+		# List for all status dictionaries for each device
+		statusList = []
+		
+		# Display Procedure		
+		print("\n\n----------------------")
+		print("Upgrade Specifications")
+		print("----------------------")
+		print("--- IP ---\t--- Model ---\t--- Before Reboot Code ---\t--- After Reboot Code ---")
+		for device in devices:
+			print("{0}\t{1}\t{2}\t{3}".format(device.ip, device.model, device.curr_code, device.tar_code))
+		print("-------------------------------------")
+		# Last confirmation before entering loop
+		verified = getYNAnswer("Please Verify the information above. Continue")
+		
+		# Upgrade Loop
+		#verified = 'y'
+		if verified == 'y':
+			# Loop over all devices in list
+			print("\n\n--------------------")
+			print("Rebooting Devices")
+			print("--------------------\n")
+			for device in devices:
+				try:
+					statusDict = self.reboot_device(device.ip, device.hostname)
+				except Exception as err:
+					msg = 'Reboot function failed, {0}'.format(err) 
+					self.do_log(msg, level='error')				
+				else:
+					# Add status results to list
+					statusList.append(statusDict)
+			'''
+			# Test Dictionary List	
+			statusList = [
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '-',  'Upgrade_Finish': '-', 'IP': '10.10.10.1', 'Connected': 'Y', 'OS_installed': '-', 'Rebooted': 'Y', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '-',  'Upgrade_Finish': '-', 'IP': '10.10.10.2', 'Connected': 'Y', 'OS_installed': '-', 'Rebooted': 'Y', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '-',  'Upgrade_Finish': '-', 'IP': '10.10.10.3', 'Connected': 'Y', 'OS_installed': '-', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
+				{'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '-',  'Upgrade_Finish': '-', 'IP': '10.10.10.4', 'Connected': 'N', 'OS_installed': '-', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''}
+			]
+			'''
+			# Create CSV
+			keys = [ 'Upgrade_List', 'Upgrade_Start', 'Upgrade_Finish', 'IP', 'Connected', 'OS_installed', 'Rebooted', 'IST_Confirm_Loaded', 'IST_Confirm_Rebooted', 'Comments' ]
+			listDictCSV(statusList, Menu.status_log, keys)
+			
+			# Tabulate and Print Results
+			resultsDict = tabulateRebootResults(statusList)
+			print("\n\n---------------")
+			print("Process Summary")
+			print("---------------")
+			print("Rebooted: {0}".format(len(resultsDict['rebooted'])))
+			print("Reboot Failed: {0}".format(len(resultsDict['not_rebooted'])))
+			for myfailed in resultsDict['not_rebooted']:
+				print("\t{0}".format(myfailed))			
+			print("Unable to connect: {0}".format(len(resultsDict['connect_fails'])))
+			for myfailed in resultsDict['connect_fails']:
+				print("\t{0}".format(myfailed))
+
+			print("\nTOTAL DEVICES: {0}").format(resultsDict['total_devices'])
+			print("---------------")
+		else:
+			print("Aborted Upgrade! Returning to Main Menu.")				
+
+	def reboot_device(self, ip, hostname):
+		'''Reboots a device'''
+		# Status dictionary for post-upgrade reporting
+		statusDict = {}
+		if Menu.upgrade_list == '':
+			statusDict['Upgrade_List'] = 'Juniper-Upgrade_' + Menu.username
+		else:
+			statusDict['Upgrade_List'] = Menu.upgrade_list
+		statusDict['Upgrade_Start'] = ''
+		statusDict['Upgrade_Finish'] = '-'
+		statusDict['IP'] = ip
+		statusDict['Connected'] = 'N'
+		statusDict['OS_installed'] = '-'
+		statusDict['Rebooted'] = 'N'
+		statusDict['IST_Confirm_Loaded'] = '-'
+		statusDict['IST_Confirm_Rebooted'] = ''
+		statusDict['Comments'] = ''
+		
+		# Start the logging 
+		logging.basicConfig(filename=Menu.reboot_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
+		logging.getLogger().name = ip
+		print('Information logged in {0}'.format(Menu.reboot_log))		
+		
+		# Display basic information	
+		self.do_log("Device: {0} ({1})".format(hostname, ip))
+		now = datetime.datetime.now()
+		formatTime = now.strftime("%Y-%m-%d %H:%M")		
+		self.do_log("Timestamp: {0}".format(formatTime))
+			
+		# Verify package exists before starting upgrade process
+		dev = Device(ip,user=Menu.username,password=Menu.password)
+		# Try to open a connection to the device
+		try:
+			self.do_log('\n')
+			self.do_log('------------------------- Opening connection to: {0} -------------------------\n'.format(ip))
+			self.do_log('User: {0}'.format(Menu.username))
+			dev.open()
+		# If there is an error when opening the connection, display error and exit upgrade process
+		except Exception as err:
+			sys.stderr.write('Cannot connect to device: {0}\n'.format(err))
+		else:
+			# Record connection achieved
+			statusDict['Connected'] = 'Y'
+			
+			# Increase the default RPC timeout to accommodate install operations
+			dev.timeout = 300
+			# Create an instance of SW
+			sw = SW(dev)
+			
+			# Logging
+			now = datetime.datetime.now()
+			statusDict['Upgrade_Start'] = now.strftime("%Y-%m-%d %H:%M")
+			self.do_log('Timestamp: {0}'.format(statusDict['Upgrade_Start']))				
+			self.do_log('Beginning reboot cycle, please be patient.')			
+			
+			# Attempt to reboot
+			try:
+				rsp = sw.reboot()
+				self.do_log(rsp)
+			except Exception as err:
+				msg = 'Unable to reboot system, {0}'.format(err) 
+				self.do_log(msg, level='error')
+			else:
+				# Record reboot
+				statusDict['Rebooted'] = 'Y'
+			
+			# End the NETCONF session and close the connection
+			dev.close()
+			self.do_log('\n')
+			self.do_log('------------------------- Closed connection to: {0} -------------------------\n'.format(ip))
+			
+		return statusDict
 
 	def do_log(self, msg, level='info'):
 	    getattr(logging, level)(msg)

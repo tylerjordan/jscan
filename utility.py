@@ -1,9 +1,9 @@
 # File: utility.py
 # Author: Tyler Jordan
-# Modified: 7/19/2016
+# Modified: 7/26/2016
 # Purpose: Assist CBP engineers with Juniper configuration tasks
 
-import sys, re
+import sys, re, os
 import fileinput
 import glob
 import code
@@ -154,26 +154,31 @@ def chooseDevices():
 	return ip_list
 	
 # Converts listDict to CSV file
-def listDictCSV(myListDict, filePath, fileName, keys):
+def listDictCSV(myListDict, filePathName, keys):
+	addKeys = True
+	if (os.path.isfile(filePathName)):
+		addKeys = False
 	try:
-		f = open(filePath + fileName, 'w')
+		f = open(filePathName, 'a')
 	except:
-		print "Failure opening file in write mode"
+		print "ERROR: Failure opening file in append mode.\n"
+		print("Be sure {0} isn't open in another program.".format(filePathName))
 	else:
-		# Write all the headings in the CSV
-		for akey in keys[:-1]:							# Runs for every element, except the last
-			f.write(str(akey) + ",")							# Writes most elements
-		f.write(keys[-1])								# Writes last element
-		f.write("\n")
+		if addKeys:
+			#Write all the headings in the CSV
+			for akey in keys[:-1]:							# Runs for every element, except the last
+				f.write(akey + ",")							# Writes most elements
+			f.write(keys[-1])								# Writes last element
+			f.write("\n")
 		
 		for part in myListDict:
 			for bkey in keys[:-1]:
-				# print "Key: " + key + "  Value: " + part[key]
+				#print "Key: " + bkey + "  Value: " + str(part[bkey])
 				f.write(str(part[bkey]) + ",")
-			f.write(part[keys[-1]])
+			f.write(str(part[keys[-1]]))
 			f.write("\n")
 		f.close()
-		print "Completed writing commands."
+		print "\nCompleted appending to CSV."
 
 # Converts CSV file to listDict
 def csvListDict(fileName):
@@ -189,7 +194,7 @@ def csvListDict(fileName):
 					values = "".join(line.split()).split(',')
 					a.append({mykeys[n]:values[n] for n in range(0,len(mykeys))})
 	except:
-		print "Failure converting CSV to listDict"
+		print "ERROR: Failure converting CSV to listDict"
 	return myListDict
 
 # Gets a target code
@@ -212,20 +217,20 @@ def getCode(device, mypath):
 	
 	return tar_code
 
-# Analyze listDict and create statistics
-def tabulateResults(listDict):
+# Analyze listDict and create statistics (Upgrade)
+def tabulateUpgradeResults(listDict):
 	statusDict = {'success_rebooted': [],'success_not_rebooted': [], 'connect_fails': [], 'software_install_fails': [], 'total_devices': 0}
 	
 	for mydict in listDict:
-		if mydict['connected'] and mydict['os_installed']:
-			if mydict['rebooted']:
-				statusDict['success_rebooted'].append(mydict['ip'])
+		if mydict['Connected'] == 'Y' and mydict['OS_installed'] == 'Y':
+			if mydict['Rebooted'] == 'Y':
+				statusDict['success_rebooted'].append(mydict['IP'])
 			else:
-				statusDict['success_not_rebooted'].append(mydict['ip'])
-		elif mydict['connected'] and not mydict['os_installed']:
-			statusDict['software_install_fails'].append(mydict['ip'])
-		elif not mydict['connected']:
-			statusDict['connect_fails'].append(mydict['ip'])
+				statusDict['success_not_rebooted'].append(mydict['IP'])
+		elif mydict['Connected'] == 'Y' and mydict['OS_installed'] == 'N':
+			statusDict['software_install_fails'].append(mydict['IP'])
+		elif mydict['Connected'] == 'N':
+			statusDict['connect_fails'].append(mydict['IP'])
 		else:
 			print("Error: Uncaptured Result")
 		# Every device increments this total
@@ -233,3 +238,21 @@ def tabulateResults(listDict):
 	
 	return statusDict
 				
+# Analyze listDict and create statistics (Reboot)
+def tabulateRebootResults(listDict):
+	statusDict = {'rebooted': [], 'not_rebooted': [], 'connect_fails': [], 'total_devices': 0}
+	
+	for mydict in listDict:
+		if mydict['Connected'] == 'Y':
+			if mydict['Rebooted'] == 'Y':
+				statusDict['rebooted'].append(mydict['IP'])
+			else:
+				statusDict['not_rebooted'].append(mydict['IP'])
+		elif mydict['Connected'] == 'N':
+			statusDict['connect_fails'].append(mydict['IP'])
+		else:
+			print("Error: Uncaptured Result")
+		# Every device increments this total
+		statusDict['total_devices'] += 1
+	
+	return statusDict
