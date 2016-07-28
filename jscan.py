@@ -57,7 +57,7 @@ Rack Menu
     def getargs(self, argv):
         # Interprets and handles the command line arguments
         try:
-            opts, args = getopt.getopt(argv,"hu:",["user="])
+            opts, args = getopt.getopt(argv, "hu:", ["user="])
         except getopt.GetoptError:
             print("jscan.py -u <username>")
             sys.exit(2)
@@ -206,7 +206,7 @@ Rack Menu
                 # Record connection achieved
                 statusDict['Connected'] = 'Y'
                 # Increase the default RPC timeout to accommodate install operations
-                dev.timeout = 300
+                dev.timeout = 600
                 # Create an instance of SW
                 sw = SW(dev)
                 try:
@@ -456,7 +456,7 @@ Rack Menu
             statusDict['Connected'] = 'Y'
 
             # Increase the default RPC timeout to accommodate install operations
-            dev.timeout = 300
+            dev.timeout = 600
             # Create an instance of SW
             sw = SW(dev)
 
