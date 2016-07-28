@@ -179,7 +179,7 @@ Rack Menu
         # Start Logging
         now = datetime.datetime.now()
         date_time = now.strftime("%Y-%m-%d-%H%M")
-        install_log = Menu.log_dir + "juniper-install-LOG_" + date_time + Menu.username + ".log"
+        install_log = Menu.log_dir + "juniper-install-LOG_" + date_time + "_" + Menu.username + ".log"
         logging.basicConfig(filename=install_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
         logging.getLogger().name = ip
         print('Information logged in {0}'.format(install_log))
@@ -429,7 +429,7 @@ Rack Menu
         # Start the logging
         now = datetime.datetime.now()
         date_time = now.strftime("%Y-%m-%d-%H%M")
-        reboot_log = Menu.log_dir + "juniper-reboot-LOG_" + date_time + Menu.username + ".log"
+        reboot_log = Menu.log_dir + "juniper-reboot-LOG_" + date_time + "_" + Menu.username + ".log"
         logging.basicConfig(filename=reboot_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
         logging.getLogger().name = ip
         print('Information logged in {0}'.format(reboot_log))
