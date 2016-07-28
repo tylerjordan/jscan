@@ -22,8 +22,8 @@ class Menu:
 	image_dir = ".\\images\\"
 	log_dir = ".\\logs\\"
 	remote_path = "/var/tmp"
-	install_log = ".\\logs\\install.log"
-	reboot_log = ".\\logs\\reboot.log"
+	#install_log = ".\\logs\\install.log"
+	#reboot_log = ".\\logs\\reboot.log"
 	status_log = ".\\logs\\Juniper_Status_Log.csv"
 	
 	'''Display a menu and respond to choices when run.'''
@@ -177,9 +177,12 @@ Rack Menu
 		statusDict['Comments'] = ''
 		
 		# Start Logging
-		logging.basicConfig(filename=Menu.install_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
+		now = datetime.datetime.now()
+		date_time = now.strftime("%Y-%m-%d-%H%M")
+		install_log = Menu.log_dir + "juniper-install-LOG_" + date_time + Menu.username + ".log"
+		logging.basicConfig(filename=install_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
 		logging.getLogger().name = ip
-		print('Information logged in {0}'.format(Menu.install_log))
+		print('Information logged in {0}'.format(install_log))
 
 		# Upgrade Information
 		self.do_log("Device: {0} ({1})".format(hostname, ip))
@@ -240,6 +243,8 @@ Rack Menu
 							statusDict['Rebooted'] = 'Y'
 							self.do_log('Upgrade pending reboot cycle, please be patient.')
 							self.do_log(rsp)
+							# Open a command terminal to monitor device connectivity
+							#os.system("start cmd /c ping -t " + ip)
 						elif reboot == "noReboot":
 							self.do_log('Reboot NOT performed. System must be rebooted to complete upgrade.')
 				
@@ -370,6 +375,8 @@ Rack Menu
 				else:
 					# Add status results to list
 					statusList.append(statusDict)
+					# Open a command terminal to monitor device connectivity
+					#os.system("start cmd /c ping -t " + device.ip)
 			'''
 			# Test Dictionary List	
 			statusList = [
@@ -419,10 +426,13 @@ Rack Menu
 		statusDict['IST_Confirm_Rebooted'] = ''
 		statusDict['Comments'] = ''
 		
-		# Start the logging 
-		logging.basicConfig(filename=Menu.reboot_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
+		# Start the logging
+		now = datetime.datetime.now()
+		date_time = now.strftime("%Y-%m-%d-%H%M")
+		reboot_log = Menu.log_dir + "juniper-reboot-LOG_" + date_time + Menu.username + ".log"		
+		logging.basicConfig(filename=reboot_log, level=logging.INFO, format='%(asctime)s:%(name)s: %(message)s')
 		logging.getLogger().name = ip
-		print('Information logged in {0}'.format(Menu.reboot_log))		
+		print('Information logged in {0}'.format(reboot_log))		
 		
 		# Display basic information	
 		self.do_log("Device: {0} ({1})".format(hostname, ip))
