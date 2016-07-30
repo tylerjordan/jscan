@@ -133,19 +133,26 @@ Rack Menu
 
     def refresh_device(self):
         # Loop through devices and update code and date/time
+        changes = False
+        print("Please be patient")
         for device in self.jrack.devices:
+            print ".",
             dev = Device(device.ip, user=Menu.username, password=Menu.password)
             try:
                 dev.open()
             except Exception as err:
                 print("Unable to open connection to: " + ip)
             else:
-                if device.code != dev.facts['version']:
-                    device.code = dev.facts['version']
-                    device.refresh = datetime.now()
-                    print("Changed Code")
-                else:
-                    print("Nothing Changed")
+                if device.curr_code != dev.facts['version']:
+                    old_code = device.curr_code
+                    device.curr_code = dev.facts['version']
+                    device.refresh = datetime.datetime.now()
+                    # Print the changed device
+                    print("{0} changed from {1} to {2}".format(device.ip, old_code, device.curr_code))
+                    changes = True
+        # Display a message if no changes were detected
+        if not changes:
+            print("\nNo changes!")
 
     def remove_device(self):
         # Loop through devices and delete object instance
@@ -156,7 +163,7 @@ Rack Menu
                 del device
                 print("Deleted Device: " + ip)
             else:
-                print("Skipping Device: " + ip )
+                print("Skipping Device: " + ip)
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
         # Upgrade single device
@@ -336,7 +343,7 @@ Rack Menu
             print("Software install failed: {0}".format(len(resultsDict['software_install_fails'])))
             for myfailed in resultsDict['software_install_fails']:
                 print("\t{0}".format(myfailed))
-            print("\nTOTAL DEVICES: {0}").format(resultsDict['total_devices'])
+            print("\nTOTAL DEVICES: {0}".format(resultsDict['total_devices']))
             print("---------------")
         else:
             print("Aborted Upgrade! Returning to Main Menu.")
