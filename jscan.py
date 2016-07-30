@@ -320,14 +320,14 @@ Rack Menu
             '''
             # StatusList Test
             statusList = [
-                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:25',  'Upgrade_Finish': '7/26/2016 09:39', 'IP': '10.10.10.1', 'Connected': 'Y', 'OS_installed': 'Y', 'Rebooted': 'Y', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
-                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:40',  'Upgrade_Finish': '7/26/2016 09:54', 'IP': '10.10.10.2', 'Connected': 'Y', 'OS_installed': 'Y', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
-                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:55',  'Upgrade_Finish': '7/26/2016 10:10', 'IP': '10.10.10.3', 'Connected': 'Y', 'OS_installed': 'N', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''},
-                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 10:15',  'Upgrade_Finish': '7/26/2016 10:25', 'IP': '10.10.10.4', 'Connected': 'N', 'OS_installed': 'N', 'Rebooted': 'N', 'IST_Confirm_Loaded': '', 'IST_Confirm_Rebooted': '', 'Comments': ''}
+                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:25',  'Upgrade_Finish': '7/26/2016 09:39', 'IP': '10.10.10.1', 'Connected': 'Y', 'OS_installed': 'Y', 'Rebooted': 'Y'},
+                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:40',  'Upgrade_Finish': '7/26/2016 09:54', 'IP': '10.10.10.2', 'Connected': 'Y', 'OS_installed': 'Y', 'Rebooted': 'N'},
+                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 09:55',  'Upgrade_Finish': '7/26/2016 10:10', 'IP': '10.10.10.3', 'Connected': 'Y', 'OS_installed': 'N', 'Rebooted': 'N'},
+                {'Upgrade_List': 'Juniper-Upgrade_aabcct3.csv', 'Upgrade_Start': '7/26/2016 10:15',  'Upgrade_Finish': '7/26/2016 10:25', 'IP': '10.10.10.4', 'Connected': 'N', 'OS_installed': 'N', 'Rebooted': 'N'}
             ]
             '''
             # Create CSV
-            keys = [ 'Upgrade_List', 'Upgrade_Start', 'Upgrade_Finish', 'IP', 'Connected', 'OS_installed', 'Rebooted', 'IST_Confirm_Loaded', 'IST_Confirm_Rebooted', 'Comments' ]
+            keys = ['Upgrade_List', 'Upgrade_Start', 'Upgrade_Finish', 'IP', 'Connected', 'OS_installed', 'Rebooted']
             listDictCSV(statusList, Menu.status_log, keys)
 
             # Tabulate and Print Results
