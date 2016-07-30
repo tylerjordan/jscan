@@ -13,6 +13,7 @@ from jrack import JRack, JDevice
 from utility import *
 from os.path import join
 from getpass import getpass
+from prettytable import PrettyTable
 
 
 class Menu:
@@ -83,11 +84,10 @@ Rack Menu
     def show_devices(self):
         # View all the devices in list
         devices = self.jrack.devices
-        print("--- IP ---\t--- Model ---\t--- Curr Code ---\t--- New Code ---\t--- Host ---\t--- Last Updated ---")
-        if not devices:
-            print(" - No Devices Loaded - ")
+        t = PrettyTable(['IP', 'Model', 'Current Code', 'Target Code', 'Host', 'Last Updated'])
         for device in devices:
-            print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(device.ip, device.model, device.curr_code, device.tar_code, device.hostname, device.refresh))
+            t.add_row([device.ip, device.model, device.curr_code, device.tar_code, device.hostname, device.refresh])
+        print t
 
     def add_device(self, ip=None, tar_code=None):
         # Add devices to the list
@@ -294,10 +294,10 @@ Rack Menu
         print("\n\n----------------------")
         print("Upgrade Specifications")
         print("----------------------")
-        print("--- IP ---\t--- Model ---\t--- Curr Code ---\t\t--- Target Code ---\t\t--- Reboot ---")
+        t = PrettyTable(['IP', 'Model', 'Current Code', 'Target Code', 'Reboot'])
         for device in devices:
-            print("{0}\t{1}\t{2}\t{3}\t{4}".format(device.ip, device.model, device.curr_code, device.tar_code, reboot))
-        print("-------------------------------------")
+            t.add_row([device.ip, device.model, device.curr_code, device.tar_code, reboot])
+        print t
         # Last confirmation before entering loop
         verified = getYNAnswer("Please Verify the information above. Continue")
 
@@ -352,10 +352,10 @@ Rack Menu
         print("\n\n----------------------")
         print("Upgrade Specifications")
         print("----------------------")
-        print("--- IP ---\t--- Model ---\t--- Before Reboot Code ---\t--- After Reboot Code ---")
+        t = PrettyTable(['IP', 'Model', 'Before Reboot', 'After Reboot'])
         for device in devices:
-            print("{0}\t{1}\t{2}\t{3}".format(device.ip, device.model, device.curr_code, device.tar_code))
-        print("-------------------------------------")
+            t.add_row([device.ip, device.model, device.curr_code, device.tar_code])
+        print t
         # Last confirmation before entering loop
         verified = getYNAnswer("Please Verify the information above. Continue")
 
@@ -494,7 +494,7 @@ Rack Menu
         self.do_log(report)
 
     def quit(self):
-        print("Thank you for using JRack.")
+        print("Thank you for using JRack. Juniper Your Network!")
         sys.exit(0)
 
 if __name__ == "__main__":
