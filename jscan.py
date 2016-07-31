@@ -1,6 +1,6 @@
 # Author: Tyler Jordan
 # File: jscan.py
-# Last Modified: 7/28/2016
+# Last Modified: 7/31/2016
 # Description: main execution file, starts the top-level menu
 
 import os, sys, getopt, csv
@@ -97,7 +97,7 @@ Rack Menu
         ''' Make sure this device is not already in the list.'''
         for device in self.jrack.devices:
             if ip in device.ip:
-                print("Host: {0} ({1}) already loaded.".format(hostname, ip))
+                print("Host: {0} ({1}) already loaded.".format(device.hostname, ip))
                 new_device = False
                 break
         ''' Do this if this is a new device.'''
@@ -141,7 +141,7 @@ Rack Menu
             try:
                 dev.open()
             except Exception as err:
-                print("Unable to open connection to: " + ip)
+                print("Unable to open connection to: " + device.ip)
             else:
                 if device.curr_code != dev.facts['version']:
                     old_code = device.curr_code
