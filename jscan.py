@@ -3,13 +3,14 @@
 # Last Modified: 7/31/2016
 # Description: main execution file, starts the top-level menu
 
-import os, sys, getopt, csv
-import utility, logging
+import getopt
+import csv
+import logging
 import datetime
 
 from jnpr.junos import Device
 from jnpr.junos.utils.sw import SW
-from jrack import JRack, JDevice
+from jrack import JRack
 from utility import *
 from os.path import join
 from getpass import getpass
@@ -117,9 +118,9 @@ Rack Menu
 
     def load_devices(self):
         # Load from a list of devices
-        fileList = getFileList(Menu.list_dir)
-        if fileList:
-            Menu.upgrade_list = getOptionAnswer("Choose an upgrade file", fileList)
+        filelist = getFileList(Menu.list_dir)
+        if filelist:
+            Menu.upgrade_list = getOptionAnswer("Choose an upgrade file", filelist)
             with open(join(Menu.list_dir,Menu.upgrade_list), 'r') as infile:
                 reader = csv.DictReader(infile)
                 print("\n\n----------------------")
@@ -141,7 +142,7 @@ Rack Menu
             try:
                 dev.open()
             except Exception as err:
-                print("Unable to open connection to: " + device.ip)
+                print("Error opening {0}: {1}".format(device.ip, err))
             else:
                 if device.curr_code != dev.facts['version']:
                     old_code = device.curr_code
@@ -161,9 +162,9 @@ Rack Menu
         for device in self.jrack.devices:
             if device.ip == ip:
                 del device
-                print("Deleted Device: " + ip)
+                print("Deleted Device: ".format(ip))
             else:
-                print("Skipping Device: " + ip)
+                print("Skipping Device: ".format(ip))
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
         # Upgrade single device
@@ -196,9 +197,9 @@ Rack Menu
         self.do_log("JunOS: {0}".format(tar_code))
 
         # Verify package exists before starting upgrade process
-        fullPathFile = Menu.image_dir + tar_code
-        if os.path.isfile(fullPathFile):
-            dev = Device(ip,user=Menu.username,password=Menu.password)
+        fullpathfile = Menu.image_dir + tar_code
+        if os.path.isfile(fullpathfile):
+            dev = Device(ip, user=Menu.username, password=Menu.password)
             # Try to open a connection to the device
             try:
                 self.do_log('\n')
@@ -207,7 +208,7 @@ Rack Menu
                 dev.open()
             # If there is an error when opening the connection, display error and exit upgrade process
             except Exception as err:
-                sys.stderr.write('Cannot connect to device: {0}\n'.format(err))
+                sys.stderr.write('Cannot connect to device {0} : {1}'.format(ip, err))
             # If
             else:
                 # Record connection achieved
@@ -224,7 +225,7 @@ Rack Menu
                     self.do_log('Timestamp: {0}'.format(statusDict['Upgrade_Start']))
 
                     # Actual Upgrade Function
-                    ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=True, validate=True)
+                    ok = sw.install(package=fullpathfile, remote_path=Menu.remote_path, progress=True, validate=True)
                     # Failed install method...
                     # ok = sw.install(package=fullPathFile, remote_path=Menu.remote_path, progress=self.update_progress, validate=True)
                 except Exception as err:
@@ -260,7 +261,7 @@ Rack Menu
                 self.do_log('\n')
                 self.do_log('------------------------- Closed connection to: {0} -------------------------\n'.format(ip))
         else:
-            msg = 'Software package does not exist: {0}. '.format(fullPathFile)
+            msg = 'Software package does not exist: {0}. '.format(fullpathfile)
             sys.exit(msg + '\nExiting program')
 
         return statusDict
@@ -444,8 +445,8 @@ Rack Menu
         # Display basic information
         self.do_log("Device: {0} ({1})".format(hostname, ip))
         now = datetime.datetime.now()
-        formatTime = now.strftime("%Y-%m-%d %H:%M")
-        self.do_log("Timestamp: {0}".format(formatTime))
+        formattime = now.strftime("%Y-%m-%d %H:%M")
+        self.do_log("Timestamp: {0}".format(formattime))
 
         # Verify package exists before starting upgrade process
         dev = Device(ip,user=Menu.username,password=Menu.password)
