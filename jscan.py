@@ -1,6 +1,6 @@
 # Author: Tyler Jordan
 # File: jscan.py
-# Last Modified: 7/31/2016
+# Last Modified: 8/1/2016
 # Description: main execution file, starts the top-level menu
 
 import getopt
@@ -25,8 +25,6 @@ class Menu:
     image_dir = ".\\images\\"
     log_dir = ".\\logs\\"
     remote_path = "/var/tmp"
-    # install_log = ".\\logs\\install.log"
-    # reboot_log = ".\\logs\\reboot.log"
     status_log = ".\\logs\\Juniper_Status_Log.csv"
 
     '''Display a menu and respond to choices when run.'''
@@ -39,7 +37,8 @@ class Menu:
             "4": self.load_devices,
             "5": self.bulk_upgrade,
             "6": self.bulk_reboot,
-            "7": self.quit
+            "7": self.clear_devices,
+            "8": self.quit
         }
 
     def display_menu(self):
@@ -53,7 +52,8 @@ Rack Menu
 4. Load Devices
 5. Bulk Upgrade
 6. Bulk Reboot
-7. Quit
+7. Clear Devices
+8. Quit
 """)
 
     def getargs(self, argv):
@@ -155,16 +155,10 @@ Rack Menu
         if not changes:
             print("\nNo changes!")
 
-    def remove_device(self):
+    def clear_devices(self):
         # Loop through devices and delete object instance
-        ip = getInputAnswer("Enter the IP of device you want to remove")
-
-        for device in self.jrack.devices:
-            if device.ip == ip:
-                del device
-                print("Deleted Device: ".format(ip))
-            else:
-                print("Skipping Device: ".format(ip))
+        print("Removing Devices")
+        self.jrack.devices = []
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
         # Upgrade single device
@@ -449,7 +443,7 @@ Rack Menu
         self.do_log("Timestamp: {0}".format(formattime))
 
         # Verify package exists before starting upgrade process
-        dev = Device(ip,user=Menu.username,password=Menu.password)
+        dev = Device(ip, user=Menu.username, password=Menu.password)
         # Try to open a connection to the device
         try:
             self.do_log('\n')
@@ -496,7 +490,7 @@ Rack Menu
         getattr(logging, level)(msg)
         print("--> " + msg)
 
-    def update_progress(self, dev, report):
+    def update_progress(self, report):
         # log the progress of the installing process
         print("--> " + report)
         self.do_log(report)
