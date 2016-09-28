@@ -1,6 +1,6 @@
 # Author: Tyler Jordan
 # File: jscan.py
-# Last Modified: 8/1/2016
+# Last Modified: 9/28/2016
 # Description: main execution file, starts the top-level menu
 
 import getopt
@@ -21,13 +21,15 @@ class Menu:
     username = ""
     password = ""
     upgrade_list = ""
-    list_dir = ".\\lists\\"
-    image_dir = ".\\images\\"
-    log_dir = ".\\logs\\"
-    remote_path = "/var/tmp"
-    status_log = ".\\logs\\Juniper_Status_Log.csv"
 
-    '''Display a menu and respond to choices when run.'''
+    list_dir = ""
+    image_dir = ""
+    log_dir = ""
+    status_log = ""
+
+    remote_path = "/var/tmp"
+
+    # Display a menu and respond to choices when run.
     def __init__(self):
         self.jrack = JRack()
         self.choices = {
@@ -41,6 +43,7 @@ class Menu:
             "8": self.quit
         }
 
+    # The printed menu
     def display_menu(self):
         print ("""
 
@@ -55,6 +58,21 @@ Rack Menu
 7. Clear Devices
 8. Quit
 """)
+
+    def set_dir_format(self):
+        # Sets the directory format
+        if sys.platform.startswith('win'):
+            '''Windows Directory Format'''
+            Menu.list_dir = ".\\lists\\"
+            Menu.image_dir = ".\\images\\"
+            Menu.log_dir = ".\\logs\\"
+            Menu.status_log = ".\\logs\\Juniper_Status_Log.csv"
+        else:
+            '''Unix Directory Format'''
+            Menu.list_dir = "./lists/"
+            Menu.image_dir = "./images/"
+            Menu.log_dir = "./logs/"
+            Menu.status_log = "./logs/Juniper_Status_Log.csv"
 
     def getargs(self, argv):
         # Interprets and handles the command line arguments
@@ -72,6 +90,8 @@ Rack Menu
 
     def run(self):
         Menu.password=getpass(prompt="\nEnter your password: ")
+        # Determine the os and set directory paths accordingly
+        Menu.set_dir_format(self)
         # Display the menu and respond to choices
         while True:
             self.display_menu()
