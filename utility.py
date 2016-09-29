@@ -9,7 +9,7 @@ import glob
 import code
 
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, exists
 
 #--------------------------------------
 # ANSWER METHODS
@@ -79,13 +79,15 @@ def getYNAnswer(question):
 # Return list of files from a directory
 def getFileList(mypath):
     fileList = []
-    try:
-        for afile in listdir(mypath):
-            if isfile(join(mypath,afile)):
-                fileList.append(afile)
-    except Exception as err:
-        print "Error accessing directory {0} - ERROR: {1}".format(mypath, err)
-
+    if exists(mypath):
+        try:
+            for afile in listdir(mypath):
+                if isfile(join(mypath,afile)):
+                    fileList.append(afile)
+        except Exception as err:
+            print "Error accessing files {0} - ERROR: {1}".format(mypath, err)
+    else:
+        print "Path: {0} does not exist!".format(mypath)
     return fileList
 
 # Method for requesting IP address target

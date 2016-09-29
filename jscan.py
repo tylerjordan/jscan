@@ -74,6 +74,18 @@ Rack Menu
             Menu.log_dir = "./logs/"
             Menu.status_log = "./logs/Juniper_Status_Log.csv"
 
+        if not exists(Menu.list_dir):
+            print "Missing 'lists' directory! Create a directory in jscan directory called 'lists'."
+            return False
+        if not exists(Menu.image_dir):
+            print "Missing 'images' directory! Create a directory in jscan directory called 'images'."
+            return False
+        if not exists(Menu.log_dir):
+            print "Missing 'logs' directory! Create a directory in jscan directory called 'logs'."
+            return False
+
+        return True
+
     def getargs(self, argv):
         # Interprets and handles the command line arguments
         try:
@@ -89,18 +101,23 @@ Rack Menu
                 Menu.username = arg
 
     def run(self):
-        Menu.password=getpass(prompt="\nEnter your password: ")
         # Determine the os and set directory paths accordingly
-        Menu.set_dir_format(self)
-        # Display the menu and respond to choices
-        while True:
-            self.display_menu()
-            choice = raw_input("Enter an option: ")				# Change this to "input" when using Python 3
-            action = self.choices.get(choice)
-            if action:
-                action()
-            else:
-                print("{0} is not a valid choice".format(choice))
+        if Menu.set_dir_format(self):
+            # Securely get the user's password
+            Menu.password=getpass(prompt="\nEnter your password: ")
+
+            # Display the menu and respond to choices
+            while True:
+                self.display_menu()
+                choice = raw_input("Enter an option: ")				# Change this to "input" when using Python 3
+                action = self.choices.get(choice)
+                if action:
+                    action()
+                else:
+                    print("{0} is not a valid choice".format(choice))
+        else:
+            print "Please fix issues and run again."
+            sys.exit(0)
 
     def show_devices(self):
         # View all the devices in list
