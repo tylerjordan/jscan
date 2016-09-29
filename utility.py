@@ -1,6 +1,6 @@
 # File: utility.py
 # Author: Tyler Jordan
-# Modified: 7/26/2016
+# Modified: 9/29/2016
 # Purpose: Assist CBP engineers with Juniper configuration tasks
 
 import sys, re, os
@@ -24,12 +24,16 @@ def getOptionAnswer(question, options):
             loop += 1
             print '[' + str(loop) + '] -> ' + option
         answer = raw_input('Your Selection: ')
-        if int(answer) >= 1 and int(answer) <= loop:
-            index = int(answer) - 1
-            return options[index]
+        try:
+            if int(answer) >= 1 and int(answer) <= loop:
+                index = int(answer) - 1
+                return options[index]
+        except Exception as err:
+            print "Invalid Entry - ERROR: {0}".format(err)
         else:
             print "Bad Selection"
-            loop = 0
+        answer = ""
+        loop = 0
 
 # Method for asking a question that has a single answer, returns answer index
 def getOptionAnswerIndex(question, options):
@@ -41,11 +45,15 @@ def getOptionAnswerIndex(question, options):
             loop += 1
             print '[' + str(loop) + '] -> ' + option
         answer = raw_input('Your Selection: ')
-        if int(answer) >= 1 and int(answer) <= loop:
-            return answer
+        try:
+            if int(answer) >= 1 and int(answer) <= loop:
+                return answer
+        except Exception as err:
+            print "Invalid Entry - ERROR: {0}".format(err)
         else:
             print "Bad Selection"
-            loop = 0
+        answer = ""
+        loop = 0
 
 # Method for asking a user input question
 def getInputAnswer(question):
@@ -75,15 +83,15 @@ def getFileList(mypath):
         for afile in listdir(mypath):
             if isfile(join(mypath,afile)):
                 fileList.append(afile)
-    except:
-        print "Error accessing directory: " + mypath
+    except Exception as err:
+        print "Error accessing directory {0} - ERROR: {1}".format(mypath, err)
 
     return fileList
 
 # Method for requesting IP address target
 def getTarget():
     print 64*"="
-    print "= Scan Menu                                                    ="
+    print "= Scan Menu" + 52*" " + "="
     print 64*"="
     # Loop through the IPs from the file "ipsitelist.txt"
     loop = 0
@@ -160,9 +168,9 @@ def listDictCSV(myListDict, filePathName, keys):
         addKeys = False
     try:
         f = open(filePathName, 'a')
-    except:
-        print "ERROR: Failure opening file in append mode.\n"
-        print("Be sure {0} isn't open in another program.".format(filePathName))
+    except Exception as err:
+        print "Failure opening file in append mode - ERROR: {0}".format(err)
+        print "Be sure {0} isn't open in another program.".format(filePathName)
     else:
         if addKeys:
             #Write all the headings in the CSV
@@ -193,8 +201,8 @@ def csvListDict(fileName):
                 else:
                     values = "".join(line.split()).split(',')
                     a.append({mykeys[n]:values[n] for n in range(0,len(mykeys))})
-    except:
-        print "ERROR: Failure converting CSV to listDict"
+    except Exception as err:
+        print "Failure converting CSV to listDict - ERROR: {0}".format(err)
     return myListDict
 
 # Gets a target code
