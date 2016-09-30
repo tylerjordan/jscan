@@ -1,9 +1,9 @@
 # JUPGRADE - Juniper Upgrade Script
-# Author: Tyler Jordan
+### Author: Tyler Jordan
 
 The purpose of this python script is to perform upgrades for one or more Juniper devices. The user can specify devices using the "Add Device" option or creating a CSV file with the IP and target OS .tgz file. The user will need a valid username/password that has Netconf SSH access to device(s).
 
-**Step 1**: Start jscan script. The script takes an argument for a user, this will be the username to log into the Juniper devices. 
+#**Step 1**#: Start jscan script. The script takes an argument for a user, this will be the username to log into the Juniper devices. 
       > python jscan.py -u <username>    ie. python jscan.py -u admin
 
 **Step 2**: User will be prompted for a username password. Enter the corresponding password for the username.
