@@ -1,0 +1,12 @@
+Upgrade_List,Upgrade_Start,Upgrade_Finish,IP,Connected,OS_installed,Rebooted,IST_Confirm_Loaded,IST_Confirm_Rebooted,Comments
+Juniper-Upgrade_2016-07-28_ffw_v1.csv,2016-07-28 10:34,,10.95.9.162,Y,N,N,,,
+Juniper-Upgrade_2016-07-28_ffw_v1.csv,2016-07-28 10:40,,10.95.9.164,Y,N,N,,,
+Juniper-Upgrade_2016-07-28_ffw_v1.csv,2016-07-28 11:29,2016-07-28 11:36,10.95.9.162,Y,Y,N,,,
+Juniper-Upgrade_2016-07-28_ffw_v1.csv,2016-07-28 11:37,2016-07-28 11:42,10.95.9.164,Y,Y,N,,,
+Juniper-Upgrade_2016-07-28_ffw_v2.csv,2016-07-28 13:03,2016-07-28 13:10,10.94.150.40,Y,Y,N,,,
+Juniper-Upgrade_2016-07-28_ffw_v2.csv,2016-07-28 13:11,2016-07-28 13:20,10.95.9.162,Y,Y,N,,,
+Juniper-Upgrade_2016-07-28_ffw_v2.csv,2016-07-28 13:20,2016-07-28 13:28,10.95.9.164,Y,Y,N,,,
+Juniper-Upgrade_dhsnoc,2016-07-28 13:44,-,10.95.9.164,Y,-,Y,-,,
+Juniper-Upgrade_dhsnoc,2016-07-28 13:45,-,10.95.9.162,Y,-,Y,-,,
+Juniper-Upgrade_dhsnoc,2016-08-01 13:06,2016-08-01 13:19,10.188.31.164,Y,Y,N
+Juniper-Upgrade_zzekkv3,2016-08-02 08:08,2016-08-02 08:21,10.188.31.165,Y,Y,N
