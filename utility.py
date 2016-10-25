@@ -7,9 +7,12 @@ import sys, re, os
 import fileinput
 import glob
 import code
+import paramiko  # https://github.com/paramiko/paramiko for -c -mc -put -get
 
 from os import listdir
 from os.path import isfile, join, exists
+from jnpr.junos import Device
+
 
 #--------------------------------------
 # ANSWER METHODS
@@ -266,3 +269,74 @@ def tabulateRebootResults(listDict):
         statusDict['total_devices'] += 1
 
     return statusDict
+
+# Get fact
+def get_fact(ip, username, password, fact):
+    """ Purpose: For collecting a single fact from the target system. The 'fact' must be one of the predefined ones.
+        Examples:
+            model, version, hostname, serialnumber,
+            switch_style, last_reboot_reason, uptime,
+            personality
+        Parameters:
+    """
+    dev = Device(ip, username, password)
+    try:
+        dev.open()
+    except Exception as err:
+        print("Unable to open connection to: " + ip)
+    else:
+        myfact = dev.facts[fact]
+        dev.close()
+        return myfact
+
+# Run a single non-edit command and get the output returned
+def op_command(ip, host_name, command, username, password, port=22):
+    """ Purpose: For the -c flag, this function is called. It will connect to a device, run the single specified command, and return the output.
+                 Paramiko is used instead of ncclient so we can pipe the command output just like on the CLI.
+        Parameters:
+            ip          -   String containing the IP of the remote device, used for logging purposes.
+            host_name   -   The device host-name for output purposes.
+            commands    -   String containing the command to be sent to the device.
+            username    -   Username used to log into the device
+            password    -   Password is needed because we are using paramiko for this.
+    """
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    device = '*' * 45 + '\nResults from %s at %s' % (host_name, ip)
+    command = command.strip() + ' | no-more\n'
+    output = ''
+    try:
+        ssh.connect(ip, port=port, username=username, password=password)
+        stdin, stdout, stderr = ssh.exec_command(command=command, timeout=900)
+        stdin.close()
+        # read normal output
+        while not stdout.channel.exit_status_ready():
+            output += stdout.read()
+        stdout.close()
+        # read errors
+        while not stderr.channel.exit_status_ready():
+            output += stderr.read()
+        stderr.close()
+        output = '%s \n %s' % (device, output)
+        return output
+    except paramiko.AuthenticationException:
+        output = '*' * 45 + '\n\nBad username or password for device: %s\n' % ip
+        return output
+
+# Run multiple non-edit commands from a file
+def op_multiple_commands(ip, host_name, multiple_commands, username, password, port=22):
+    """ Purpose: For the -mc flag, this function is called. It will connect to a device, run the list of specified commands, and return the output.
+        Parameters:
+            connection          -   The NCClient manager connection to the remote device.
+            ip                  -   String containing the IP of the remote device, used for logging purposes.
+            host_name           -   The device host-name for output purposes.
+            multiple_commands   -   The file containing the list of commands.
+            commands            -   String containing the command to be sent to the device.
+            username            -   Username used to log into the device
+    """
+    output = ''
+    command_file = open(multiple_commands, 'r')
+    for command in command_file:
+        command = command.rstrip()
+        output += op_command(ip, host_name, command, username, password, port)
+    return output

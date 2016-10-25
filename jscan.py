@@ -39,8 +39,9 @@ class Menu:
             "4": self.load_devices,
             "5": self.bulk_upgrade,
             "6": self.bulk_reboot,
-            "7": self.clear_devices,
-            "8": self.quit
+            "7": self.batch_show,
+            "8": self.clear_devices,
+            "9": self.quit
         }
 
     # The printed menu
@@ -55,8 +56,9 @@ Rack Menu
 4. Load Devices
 5. Bulk Upgrade
 6. Bulk Reboot
-7. Clear Devices
-8. Quit
+7. Batch Show
+8. Clear Devices
+9. Quit
 """)
 
     def set_dir_format(self):
@@ -168,6 +170,8 @@ Rack Menu
                         self.add_device(row['IP_ADDR'])
                     else:
                         self.add_device(row['IP_ADDR'], row['UPGRADE_IMG'])
+        else:
+            print("No files present in 'lists' directory.")
 
     def refresh_device(self):
         # Loop through devices and update code and date/time
@@ -191,6 +195,24 @@ Rack Menu
         # Display a message if no changes were detected
         if not changes:
             print("\nNo changes!")
+
+    def batch_show(self):
+        # Provide selection for sending a single command or multiple commands from a file
+        myoptions = ['Single Command', 'Multiple Commands']
+        answer = getOptionAnswerIndex("How many commands", myoptions)
+        if answer == "1":
+            command = raw_input("Enter your set command: ")  # Change this to "input" when using Python 3
+            for device in self.jrack.devices:
+                hostname = get_fact(device.ip, Menu.username, Menu.password, 'hostname')
+                try:
+                    results = op_command(device.ip, hostname, command, Menu.username, Menu.password)
+                except Exception as err:
+                    print "Errored..."
+                else:
+                    print results
+        else:
+            pass
+        # Provide selection to send output to screen, file, or both
 
     def clear_devices(self):
         # Loop through devices and delete object instance
