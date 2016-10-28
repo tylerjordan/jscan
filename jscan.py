@@ -7,6 +7,7 @@ import getopt
 import csv
 import logging
 import datetime
+import pprint
 
 from jnpr.junos import Device
 from jnpr.junos.utils.sw import SW
@@ -39,9 +40,10 @@ class Menu:
             "4": self.load_devices,
             "5": self.bulk_upgrade,
             "6": self.bulk_reboot,
-            "7": self.batch_show,
-            "8": self.clear_devices,
-            "9": self.quit
+            "7": self.oper_commands,
+            "8": self.set_commands,
+            "9": self.clear_devices,
+            "0": self.quit
         }
 
     # The printed menu
@@ -56,9 +58,10 @@ Rack Menu
 4. Load Devices
 5. Bulk Upgrade
 6. Bulk Reboot
-7. Batch Show
-8. Clear Devices
-9. Quit
+7. Execute Operational Commands
+8. Execute Set Commands
+9. Clear Devices
+0. Quit
 """)
 
     def set_dir_format(self):
@@ -196,23 +199,49 @@ Rack Menu
         if not changes:
             print("\nNo changes!")
 
-    def batch_show(self):
+    def oper_commands(self):
         # Provide selection for sending a single command or multiple commands from a file
-        myoptions = ['Single Command', 'Multiple Commands']
-        answer = getOptionAnswerIndex("How many commands", myoptions)
-        if answer == "1":
-            command = raw_input("Enter your set command: ")  # Change this to "input" when using Python 3
+        command_list = []
+        while True:
+            command = raw_input("Enter an operational command: ")  # Change this to "input" when using Python 3
+            if not command:
+                break
+            else:
+                command_list.append(command)
+
+        # Check if user wants to print output to a file
+        filename = ""
+        if getTFAnswer('\nPrint output to a file'):
+            filename = "oper_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+
+        output = ""
+        # Loop over commands and devices
+        for command in command_list:
             for device in self.jrack.devices:
-                hostname = get_fact(device.ip, Menu.username, Menu.password, 'hostname')
                 try:
-                    results = op_command(device.ip, hostname, command, Menu.username, Menu.password)
+                    results = op_command(device.ip, device.hostname, command, Menu.username, Menu.password)
                 except Exception as err:
                     print "Errored..."
                 else:
                     print results
-        else:
-            pass
-        # Provide selection to send output to screen, file, or both
+                    # Append output to a variable, we'll save when done with output
+                    if filename:
+                        output += results
+        print "\n" + "*" * 30 + " Commands Completed " + "*" * 30 + "\n"
+        # Check if a file was requested, if so print output to file
+        if filename:
+            filename = Menu.log_dir + filename
+            try:
+                f = open(filename, 'w')
+            except Exception as err:
+                print "Error writing to file - ERROR: {0}".format(err)
+            else:
+                f.write(output)
+                print "Output Written To: {0}".format(filename)
+            f.close()
+
+    def set_commands(self):
+        pass
 
     def clear_devices(self):
         # Loop through devices and delete object instance

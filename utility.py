@@ -79,6 +79,20 @@ def getYNAnswer(question):
             answer = ""
     return answer
 
+# Method for asking a Y/N question, return True or False
+def getTFAnswer(question):
+    answer = False
+    while not answer:
+        ynanswer = raw_input(question + '?(y/n): ')
+        if ynanswer == 'Y' or ynanswer == 'y':
+            answer = True
+            return answer
+        elif ynanswer == 'N' or ynanswer == 'n':
+            answer = False
+            return answer
+        else:
+            print "Bad Selection"
+
 # Return list of files from a directory
 def getFileList(mypath):
     fileList = []
@@ -279,11 +293,11 @@ def get_fact(ip, username, password, fact):
             personality
         Parameters:
     """
-    dev = Device(ip, username, password)
+    dev = Device(ip, user=username, password=password)
     try:
         dev.open()
     except Exception as err:
-        print("Unable to open connection to: " + ip)
+        print("Unable to open connection to: {0} | ERROR: {1}").format(ip, err)
     else:
         myfact = dev.facts[fact]
         dev.close()
@@ -302,7 +316,7 @@ def op_command(ip, host_name, command, username, password, port=22):
     """
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    device = '*' * 45 + '\nResults from %s at %s' % (host_name, ip)
+    device = '*' * 80 + '\n[%s at %s] - Command: %s\n' % (host_name, ip, command)
     command = command.strip() + ' | no-more\n'
     output = ''
     try:
