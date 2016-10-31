@@ -21,6 +21,7 @@ from prettytable import PrettyTable
 class Menu:
     username = ""
     password = ""
+    port = 22
     upgrade_list = ""
 
     list_dir = ""
@@ -176,6 +177,7 @@ Rack Menu
         else:
             print("No files present in 'lists' directory.")
 
+
     def refresh_device(self):
         # Loop through devices and update code and date/time
         changes = False
@@ -195,9 +197,11 @@ Rack Menu
                     # Print the changed device
                     print("{0} changed from {1} to {2}".format(device.ip, old_code, device.curr_code))
                     changes = True
+
         # Display a message if no changes were detected
         if not changes:
             print("\nNo changes!")
+
 
     def oper_commands(self):
         # Provide selection for sending a single command or multiple commands from a file
@@ -215,6 +219,7 @@ Rack Menu
             filename = "oper_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
 
         output = ""
+
         # Loop over commands and devices
         for command in command_list:
             for device in self.jrack.devices:
@@ -228,6 +233,7 @@ Rack Menu
                     if filename:
                         output += results
         print "\n" + "*" * 30 + " Commands Completed " + "*" * 30 + "\n"
+
         # Check if a file was requested, if so print output to file
         if filename:
             filename = Menu.log_dir + filename
@@ -240,13 +246,47 @@ Rack Menu
                 print "Output Written To: {0}".format(filename)
             f.close()
 
+
     def set_commands(self):
-        pass
+        # Provide option for using a file to supply configuration commands
+        command_list = []
+        if getTFAnswer('\nProvide commands from a file'):
+            pass
+        else:
+            # Provide selection for sending a single set command or multiple set commands
+            while True:
+                command = raw_input("Enter a set command: ")  # Change this to "input" when using Python 3
+                if not command:
+                    break
+                else:
+                    command_list.append(command)
+
+        # Check if user wants to print output to a file
+        filename = ""
+        if getTFAnswer('\nPrint output to a file'):
+            filename = "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+            print "\n"
+
+        output = ""
+
+        # Loop over all devices in the rack
+        for device in self.jrack.devices:
+            try:
+                results = run(device.ip, Menu.username, Menu.password, Menu.port, command_list)
+            except Exception as err:
+                print "Error: {0}".format(err)
+            else:
+                print results
+                # Append output to a variable, we'll save when done with output
+                if filename:
+                    output += results
+
 
     def clear_devices(self):
         # Loop through devices and delete object instance
         print("Removing Devices")
         self.jrack.devices = []
+
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
         # Upgrade single device

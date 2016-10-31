@@ -12,7 +12,8 @@ import paramiko  # https://github.com/paramiko/paramiko for -c -mc -put -get
 from os import listdir
 from os.path import isfile, join, exists
 from jnpr.junos import Device
-
+from ncclient import manager  # https://github.com/ncclient/ncclient
+from ncclient.transport import errors
 
 #--------------------------------------
 # ANSWER METHODS
@@ -353,4 +354,74 @@ def op_multiple_commands(ip, host_name, multiple_commands, username, password, p
     for command in command_file:
         command = command.rstrip()
         output += op_command(ip, host_name, command, username, password, port)
+    return output
+
+
+def set_command(connection, ip, host_name, commands):
+    """ Purpose: This is the function for the -s or -sl flags. it will send set command(s) to a device, and commit the change.
+        Parameters:
+            connection  -   The NCClient manager connection to the remote device.
+            ip          -   String containing the IP of the remote device, used for logging purposes.
+            host_name   -   The device host-name for output purposes.
+            commands    -   String containing the set command to be sent to the device, or a list of strings of multiple set commands.
+                            Either way, the device will respond accordingly, and only one commit will take place.
+    """
+    try:
+        print "{0}: Attepting to Lock, Load, and Commit...".format(ip)
+        connection.lock()
+        connection.load_configuration(action='set', config=commands)
+        connection.commit()
+    except:
+        output = 'Commit failed on %s at %s' % (host_name, ip)
+        return output
+    else:
+        output = 'Commit complete on %s at %s' % (host_name, ip)
+        connection.unlock()
+        connection.close_session()
+        return output
+
+def set_list(connection, ip, host_name, file_name):
+    """ Purpose: The -sl flag will trigger this function, which is used to parse a list of set commands in a file, and prepare them for sending.
+                 It will then call the set_command() function to actually send the list to the device and commit the changes.
+        Parameters:
+            connection  -   The NCClient manager connection to the remote device.
+            ip          -   String containing the IP of the remote device, used for logging purposes.
+            host_name   -   The device host-name for output purposes.
+            set_list_file_name    -   The filepath to the file containing the set commands, each on a separate line.
+    """
+    command_list = []
+    command_file = open(file_name, 'r')
+    for c in command_file:
+        command_list.append(c)
+    output = set_command(connection, ip, host_name, command_list)
+    return output
+
+
+def run(ip, username, password, port, command_list):
+    """ Purpose: To open an NCClient manager session to the device, and run the appropriate function against the device.
+        Parameters:
+            ip          -   String of the IP of the device, to open the connection, and for logging purposes.
+            username    -   The string username used to connect to the device.
+            password    -   The string password used to connect to the device.
+    """
+    output = ''
+    try:
+        print "{0}: Establishing connection to...".format(ip)
+        connection = manager.connect(host=ip,
+                                     port=port,
+                                     username=username,
+                                     password=password,
+                                     timeout=15,
+                                     device_params={'name':'junos'},
+                                     hostkey_verify=False)
+        connection.timeout = 300
+    except errors.SSHError:
+        output = '*' * 45 + '\n\nUnable to connect to device: %s on port: %s\n' % (ip, port)
+    except errors.AuthenticationError:
+        output = '*' * 45 + '\n\nBad username or password for device: %s\n' % ip
+    else:
+        software_info = connection.get_software_information(format='xml')
+        host_name = software_info.xpath('//software-information/host-name')[0].text
+        output = set_command(connection, ip, host_name, command_list)
+
     return output
