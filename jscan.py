@@ -27,6 +27,7 @@ class Menu:
     list_dir = ""
     image_dir = ""
     log_dir = ""
+    config_dir = ""
     status_log = ""
 
     remote_path = "/var/tmp"
@@ -44,6 +45,7 @@ class Menu:
             "7": self.oper_commands,
             "8": self.set_commands,
             "9": self.clear_devices,
+            "10": self.pyez_load,
             "0": self.quit
         }
 
@@ -62,6 +64,7 @@ Rack Menu
 7. Execute Operational Commands
 8. Execute Set Commands
 9. Clear Devices
+10. PyEZ Load
 0. Quit
 """)
 
@@ -72,12 +75,14 @@ Rack Menu
             Menu.list_dir = ".\\lists\\"
             Menu.image_dir = ".\\images\\"
             Menu.log_dir = ".\\logs\\"
+            Menu.config_dir = ".\\configs\\"
             Menu.status_log = ".\\logs\\Juniper_Status_Log.csv"
         else:
             '''Unix Directory Format'''
             Menu.list_dir = "./lists/"
             Menu.image_dir = "./images/"
             Menu.log_dir = "./logs/"
+            Menu.config_dir = "./configs/"
             Menu.status_log = "./logs/Juniper_Status_Log.csv"
 
         if not exists(Menu.list_dir):
@@ -226,7 +231,7 @@ Rack Menu
                 try:
                     results = op_command(device.ip, device.hostname, command, Menu.username, Menu.password)
                 except Exception as err:
-                    print "Errored..."
+                    print("Error running op_command : {0}").format(err)
                 else:
                     print results
                     # Append output to a variable, we'll save when done with output
@@ -286,6 +291,36 @@ Rack Menu
         # Loop through devices and delete object instance
         print("Removing Devices")
         self.jrack.devices = []
+
+
+    def pyez_load(self):
+        """ Load configuration to the device using PyEZ methods. Accepts "set" format or "heirarchical" format.
+            loadmerge - Performs a 'load merge', merging config data with existing configuration
+            loadoverwrite - Replaces existing configuration with what is in the supplied config
+            loadreplace - Replaces tagged parts of configuration
+        """
+        # Collect the load options
+        format_options = [ 'set', 'hierarchy' ]
+        format_option = getOptionAnswer('Which format', format_options)
+        load_options = ['loadmerge', 'loadoverwrite', 'loadreplace']
+        load_option = getOptionAnswer('Which load type', load_options)
+
+        merge_opt = False
+        overwrite_opt = False
+        if load_option == 'loadmerge': merge_opt = True
+        if load_option == 'loadoverwrite': overwrite_opt = True
+        if format_option == 'hierarchy': format_option = 'conf'
+
+        filelist = getFileList(Menu.config_dir)
+        # If the files exist...
+        if filelist:
+            config_file = getOptionAnswer("Choose a config file", filelist)
+            config_file = Menu.config_dir + config_file
+
+            # Loop over the devices
+            for device in self.jrack.devices:
+                results = load_with_pyez(format_option, merge_opt, overwrite_opt, config_file, device.ip, Menu.username, Menu.password)
+                print "\n" + "*" * 30 + " Loads Completed " + "*" * 30 + "\n"
 
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):

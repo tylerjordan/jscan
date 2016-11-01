@@ -12,6 +12,12 @@ import paramiko  # https://github.com/paramiko/paramiko for -c -mc -put -get
 from os import listdir
 from os.path import isfile, join, exists
 from jnpr.junos import Device
+from jnpr.junos.utils.config import Config
+from jnpr.junos.exception import ConnectError
+from jnpr.junos.exception import LockError
+from jnpr.junos.exception import UnlockError
+from jnpr.junos.exception import ConfigLoadError
+from jnpr.junos.exception import CommitError
 from ncclient import manager  # https://github.com/ncclient/ncclient
 from ncclient.transport import errors
 
@@ -366,19 +372,48 @@ def set_command(connection, ip, host_name, commands):
             commands    -   String containing the set command to be sent to the device, or a list of strings of multiple set commands.
                             Either way, the device will respond accordingly, and only one commit will take place.
     """
+    dot = "."
+    print "*" * 80
+    print "Applying configuration on {0} ".format(ip),
+    print dot,
     try:
-        print "{0}: Attepting to Lock, Load, and Commit...".format(ip)
         connection.lock()
+    except Exception as err:
+        print "{0}: Unable to Lock configuration : {1}".format(ip, err)
+        return
+
+    print dot,
+    try:
         connection.load_configuration(action='set', config=commands)
-        connection.commit()
-    except:
-        output = 'Commit failed on %s at %s' % (host_name, ip)
-        return output
-    else:
-        output = 'Commit complete on %s at %s' % (host_name, ip)
-        connection.unlock()
+    except Exception as err:
+        print "{0}: Unable to Load the configuration : {1}".format(ip, err)
+        print "{0}: Unlocking the configuration".format(ip)
+        try:
+            connection.unlock()
+        except Exception as err:
+            print "{0}: Unable to Unlock the configuration : {1}".format(ip, err)
         connection.close_session()
-        return output
+        return
+
+    print dot,
+    try:
+        connection.commit()
+    except Exception as err:
+        print "{0}: Commit fails : {1}".format(ip, err)
+        output = 'Commit complete on %s at %s' % (host_name, ip)
+        return
+
+    print dot,
+    try:
+        connection.unlock()
+    except Exception as err:
+        print "{0}: Unable to Unlock the configuration : {1}".format(ip, err)
+        connection.close_session()
+        return
+
+    connection.close_session()
+    print "Successfully Completed Configuration"
+
 
 def set_list(connection, ip, host_name, file_name):
     """ Purpose: The -sl flag will trigger this function, which is used to parse a list of set commands in a file, and prepare them for sending.
@@ -406,7 +441,7 @@ def run(ip, username, password, port, command_list):
     """
     output = ''
     try:
-        print "{0}: Establishing connection to...".format(ip)
+        #print "{0}: Establishing connection...".format(ip)
         connection = manager.connect(host=ip,
                                      port=port,
                                      username=username,
@@ -417,11 +452,78 @@ def run(ip, username, password, port, command_list):
         connection.timeout = 300
     except errors.SSHError:
         output = '*' * 45 + '\n\nUnable to connect to device: %s on port: %s\n' % (ip, port)
+        print output
     except errors.AuthenticationError:
         output = '*' * 45 + '\n\nBad username or password for device: %s\n' % ip
+        print output
     else:
         software_info = connection.get_software_information(format='xml')
         host_name = software_info.xpath('//software-information/host-name')[0].text
         output = set_command(connection, ip, host_name, command_list)
 
-    return output
+
+def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, ip, username, password):
+    """ Purpose: Perform the actual loading of the config file. Catch any errors.
+    """
+    dot = "."
+    print "*" * 80
+    print "Applying configuration on {0} ".format(ip),
+    print dot,
+    try:
+        dev = Device(ip, user=username, password=password)
+        dev.open()
+    except ConnectError as err:
+        print("{0}: Cannot connect to device : {1}").format(ip, err)
+        return
+    dev.bind(cu=Config)
+
+
+    #print("Try locking the configuration...")
+    print dot,
+    try:
+        dev.cu.lock()
+    except LockError as err:
+        print("{0}: Unable to lock configuration : {1}").format(ip, err)
+        dev.close()
+        return
+
+    #print("Try loading configuration changes...")
+    print dot,
+    try:
+        dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt, format=format_opt)
+    except (ConfigLoadError, Exception) as err:
+        print("{0}: Unable to load configuration changes : {1}").format(ip, err)
+        print("{0}: Unlocking the configuration").format(ip)
+        try:
+            dev.cu.unlock()
+        except UnlockError as err:
+            print ("{0}: Unable to unlock configuration : {1}").format(ip, err)
+        dev.close()
+        return
+
+    #print("Try committing the configuration...")
+    print dot,
+    try:
+        dev.cu.commit()
+    except CommitError as err:
+        print("{0}: Unable to commit configuration : {1}").format(ip, err)
+        print("{0}: Unlocking the configuration").format(ip)
+        try:
+            dev.cu.unlock()
+        except UnlockError as err:
+            print ("{0}: Unable to unlock configuration : {1}").format(ip, err)
+        dev.close()
+        return
+
+    #print("Try Unlocking the configuration...")
+    print dot,
+    try:
+        dev.cu.unlock()
+    except UnlockError as err:
+        print("{0}: Unable to unlock configuration : {1}").format(ip, err)
+        dev.close()
+        return
+
+    # End the NETCONF session and close the connection
+    dev.close()
+    print("Successfully Completed Configuration Change")
