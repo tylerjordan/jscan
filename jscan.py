@@ -317,9 +317,15 @@ Rack Menu
             config_file = getOptionAnswer("Choose a config file", filelist)
             config_file = Menu.config_dir + config_file
 
+            # Check if user wants to print output to a file
+            output = ''
+            log_file = Menu.log_dir + "pyez_load_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+
+            print('\nInformation logged in {0}'.format(log_file))
+
             # Loop over the devices
             for device in self.jrack.devices:
-                results = load_with_pyez(format_option, merge_opt, overwrite_opt, config_file, device.ip, Menu.username, Menu.password)
+                results = load_with_pyez(format_option, merge_opt, overwrite_opt, config_file, log_file, device.ip, Menu.username, Menu.password)
                 print "\n" + "*" * 30 + " Loads Completed " + "*" * 30 + "\n"
 
 

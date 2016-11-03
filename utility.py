@@ -8,6 +8,7 @@ import fileinput
 import glob
 import code
 import paramiko  # https://github.com/paramiko/paramiko for -c -mc -put -get
+import logging
 
 from os import listdir
 from os.path import isfile, join, exists
@@ -462,18 +463,19 @@ def run(ip, username, password, port, command_list):
         output = set_command(connection, ip, host_name, command_list)
 
 
-def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, ip, username, password):
+def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip, username, password):
     """ Purpose: Perform the actual loading of the config file. Catch any errors.
     """
     dot = "."
-    print "*" * 80
-    print "Applying configuration on {0} ".format(ip),
+
+    output += "*" * 80
+    output += 'Applying configuration on {0} '.format(ip)
     print dot,
     try:
         dev = Device(ip, user=username, password=password)
         dev.open()
     except ConnectError as err:
-        print("{0}: Cannot connect to device : {1}").format(ip, err)
+        do_log("{0}: Cannot connect to device : {1}".format(ip, err))
         return
     dev.bind(cu=Config)
 
@@ -483,7 +485,7 @@ def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, ip, username
     try:
         dev.cu.lock()
     except LockError as err:
-        print("{0}: Unable to lock configuration : {1}").format(ip, err)
+        do_log("{0}: Unable to lock configuration : {1}".format(ip, err))
         dev.close()
         return
 
@@ -492,12 +494,12 @@ def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, ip, username
     try:
         dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt, format=format_opt)
     except (ConfigLoadError, Exception) as err:
-        print("{0}: Unable to load configuration changes : {1}").format(ip, err)
-        print("{0}: Unlocking the configuration").format(ip)
+        do_log("{0}: Unable to load configuration changes : {1}".format(ip, err))
+        do_log("{0}: Unlocking the configuration".format(ip))
         try:
             dev.cu.unlock()
         except UnlockError as err:
-            print ("{0}: Unable to unlock configuration : {1}").format(ip, err)
+            do_log("{0}: Unable to unlock configuration : {1}".format(ip, err))
         dev.close()
         return
 
@@ -506,24 +508,29 @@ def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, ip, username
     try:
         dev.cu.commit()
     except CommitError as err:
-        print("{0}: Unable to commit configuration : {1}").format(ip, err)
-        print("{0}: Unlocking the configuration").format(ip)
+        do_log("{0}: Unable to commit configuration : {1}".format(ip, err))
+        do_log("{0}: Unlocking the configuration".format(ip))
         try:
             dev.cu.unlock()
         except UnlockError as err:
-            print ("{0}: Unable to unlock configuration : {1}").format(ip, err)
+            do_log("{0}: Unable to unlock configuration : {1}".format(ip, err))
         dev.close()
         return
 
     #print("Try Unlocking the configuration...")
-    print dot,
+    print dot
     try:
         dev.cu.unlock()
     except UnlockError as err:
-        print("{0}: Unable to unlock configuration : {1}").format(ip, err)
+        do_log("{0}: Unable to unlock configuration : {1}".format(ip, err))
         dev.close()
         return
 
     # End the NETCONF session and close the connection
     dev.close()
-    print("Successfully Completed Configuration Change")
+    do_log("Successfully Completed Configuration Change")
+
+
+def screen_and_log(output, log_file):
+    myfile = open(log_file, 'a')
+    print("--> " + output)
