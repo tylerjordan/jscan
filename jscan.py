@@ -44,8 +44,8 @@ class Menu:
             "6": self.bulk_reboot,
             "7": self.oper_commands,
             "8": self.set_commands,
-            "9": self.clear_devices,
-            "10": self.pyez_load,
+            "9": self.pyez_load,
+            "10": self.clear_devices,
             "0": self.quit
         }
 
@@ -63,8 +63,8 @@ Rack Menu
 6. Bulk Reboot
 7. Execute Operational Commands
 8. Execute Set Commands
-9. Clear Devices
-10. PyEZ Load
+9. PyEZ Load
+10. Clear Devices
 0. Quit
 """)
 
@@ -325,8 +325,8 @@ Rack Menu
 
             # Loop over the devices
             for device in self.jrack.devices:
-                results = load_with_pyez(format_option, merge_opt, overwrite_opt, config_file, log_file, device.ip, Menu.username, Menu.password)
-                print "\n" + "*" * 30 + " Loads Completed " + "*" * 30 + "\n"
+                results = load_with_pyez(format_option, merge_opt, overwrite_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
+                print "\n" + "*" * 30 + " All Loads Completed " + "*" * 30 + "\n"
 
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):

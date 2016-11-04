@@ -463,74 +463,75 @@ def run(ip, username, password, port, command_list):
         output = set_command(connection, ip, host_name, command_list)
 
 
-def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip, username, password):
+def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip, hostname, username, password):
     """ Purpose: Perform the actual loading of the config file. Catch any errors.
     """
     dot = "."
 
-    output += "*" * 80
-    output += 'Applying configuration on {0} '.format(ip)
-    print dot,
+    screen_and_log(("*" * 80 + "\n"), log_file)
+    screen_and_log(("Applying configuration on {0} ({1}) -> ".format(hostname, ip)), log_file)
+    screen_and_log(dot, log_file)
     try:
         dev = Device(ip, user=username, password=password)
         dev.open()
     except ConnectError as err:
-        do_log("{0}: Cannot connect to device : {1}".format(ip, err))
+        screen_and_log(("{0}: Cannot connect to device : {1}".format(ip, err)), log_file)
         return
     dev.bind(cu=Config)
 
 
     #print("Try locking the configuration...")
-    print dot,
+    screen_and_log(dot, log_file)
     try:
         dev.cu.lock()
     except LockError as err:
-        do_log("{0}: Unable to lock configuration : {1}".format(ip, err))
+        screen_and_log(("{0}: Unable to lock configuration : {1}".format(ip, err)), log_file)
         dev.close()
         return
 
     #print("Try loading configuration changes...")
-    print dot,
+    screen_and_log(dot, log_file)
     try:
         dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt, format=format_opt)
     except (ConfigLoadError, Exception) as err:
-        do_log("{0}: Unable to load configuration changes : {1}".format(ip, err))
-        do_log("{0}: Unlocking the configuration".format(ip))
+        screen_and_log(("{0}: Unable to load configuration changes : {1}".format(ip, err)), log_file)
+        screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
         try:
             dev.cu.unlock()
         except UnlockError as err:
-            do_log("{0}: Unable to unlock configuration : {1}".format(ip, err))
+            screen_and_log(("{0}: Unable to unlock configuration : {1}".format(ip, err)), log_file)
         dev.close()
         return
 
     #print("Try committing the configuration...")
-    print dot,
+    screen_and_log(dot, log_file)
     try:
         dev.cu.commit()
     except CommitError as err:
-        do_log("{0}: Unable to commit configuration : {1}".format(ip, err))
-        do_log("{0}: Unlocking the configuration".format(ip))
+        screen_and_log(("{0}: Unable to commit configuration : {1}".format(ip, err)), log_file)
+        screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
         try:
             dev.cu.unlock()
         except UnlockError as err:
-            do_log("{0}: Unable to unlock configuration : {1}".format(ip, err))
+            screen_and_log(("{0}: Unable to unlock configuration : {1}".format(ip, err)), log_file)
         dev.close()
         return
 
     #print("Try Unlocking the configuration...")
-    print dot
+    screen_and_log(dot, log_file)
     try:
         dev.cu.unlock()
     except UnlockError as err:
-        do_log("{0}: Unable to unlock configuration : {1}".format(ip, err))
+        screen_and_log(("{0}: Unable to unlock configuration : {1}".format(ip, err)), log_file)
         dev.close()
         return
 
     # End the NETCONF session and close the connection
     dev.close()
-    do_log("Successfully Completed Configuration Change")
+    screen_and_log((" Successfully Completed!\n"), log_file)
 
-
+# Prints output to a log file and the screen
 def screen_and_log(output, log_file):
-    myfile = open(log_file, 'a')
+    with open(log_file, 'a') as myfile:
+        myfile.write(output)
     print("--> " + output)
