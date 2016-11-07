@@ -256,7 +256,13 @@ Rack Menu
         # Provide option for using a file to supply configuration commands
         command_list = []
         if getTFAnswer('\nProvide commands from a file'):
-            pass
+            filelist = getFileList(Menu.config_dir)
+            # If the files exist...
+            if filelist:
+                config_file = getOptionAnswer("Choose a config file", filelist)
+                config_file = Menu.config_dir + config_file
+                with open(config_file) as f:
+                    command_list = f.read().splitlines()
         else:
             # Provide selection for sending a single set command or multiple set commands
             while True:
@@ -266,25 +272,18 @@ Rack Menu
                 else:
                     command_list.append(command)
 
-        # Check if user wants to print output to a file
-        filename = ""
-        if getTFAnswer('\nPrint output to a file'):
-            filename = "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
-            print "\n"
-
-        output = ""
+        # Create log file for operation
+        log_file = "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+        print('\nInformation logged in {0}'.format(log_file))
 
         # Loop over all devices in the rack
+        print "*" * 50 + " START LOAD " + "*" * 50
         for device in self.jrack.devices:
             try:
-                results = run(device.ip, Menu.username, Menu.password, Menu.port, command_list)
+                set_command(device.ip, Menu.username, Menu.password, Menu.port, log_file, command_list)
             except Exception as err:
                 print "Error: {0}".format(err)
-            else:
-                print results
-                # Append output to a variable, we'll save when done with output
-                if filename:
-                    output += results
+        print "*" * 50 + " END LOAD " + "*" * 50
 
 
     def clear_devices(self):
@@ -317,16 +316,15 @@ Rack Menu
             config_file = getOptionAnswer("Choose a config file", filelist)
             config_file = Menu.config_dir + config_file
 
-            # Check if user wants to print output to a file
-            output = ''
+            # Create log file
             log_file = Menu.log_dir + "pyez_load_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
-
             print('\nInformation logged in {0}'.format(log_file))
 
             # Loop over the devices
+            print "*" * 50 + " START LOAD " + "*" * 50
             for device in self.jrack.devices:
                 results = load_with_pyez(format_option, merge_opt, overwrite_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
-                print "\n" + "*" * 30 + " All Loads Completed " + "*" * 30 + "\n"
+            print "*" * 50 + " END LOAD " + "*" * 50
 
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):

@@ -364,7 +364,7 @@ def op_multiple_commands(ip, host_name, multiple_commands, username, password, p
     return output
 
 
-def set_command(connection, ip, host_name, commands):
+def set_command(ip, username, password, port, log_file, command_list):
     """ Purpose: This is the function for the -s or -sl flags. it will send set command(s) to a device, and commit the change.
         Parameters:
             connection  -   The NCClient manager connection to the remote device.
@@ -374,66 +374,59 @@ def set_command(connection, ip, host_name, commands):
                             Either way, the device will respond accordingly, and only one commit will take place.
     """
     dot = "."
-    print "*" * 80
-    print "Applying configuration on {0} ".format(ip),
-    print dot,
-    try:
-        connection.lock()
-    except Exception as err:
-        print "{0}: Unable to Lock configuration : {1}".format(ip, err)
-        return
 
-    print dot,
     try:
-        connection.load_configuration(action='set', config=commands)
+        connection = run(ip, username, password, port)
     except Exception as err:
-        print "{0}: Unable to Load the configuration : {1}".format(ip, err)
-        print "{0}: Unlocking the configuration".format(ip)
+        screen_and_log(("Connection Error with {0}: Aborting Set Operation".format(ip)), log_file)
+    else:
+        software_info = connection.get_software_information(format='xml')
+        hostname = software_info.xpath('//software-information/host-name')[0].text
+
+        screen_and_log(("Applying configuration on {0} ({1}) -> ".format(hostname, ip)), log_file)
+        screen_and_log(dot, log_file)
+        try:
+            connection.lock()
+        except Exception as err:
+            screen_and_log(("{0}: Unable to Lock configuration : {1}".format(ip, err)), log_file)
+            return
+        else:
+            screen_and_log(dot, log_file)
+        # Load configuration block
+        try:
+            connection.load_configuration(action='set', config=command_list)
+        except Exception as err:
+            screen_and_log(("{0}: Unable to Load the configuration : {1}".format(ip, err)), log_file)
+            screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
+            try:
+                connection.unlock()
+            except Exception as err:
+                screen_and_log(("{0}: Unable to Unlock the configuration : {1}".format(ip, err)), log_file)
+            connection.close_session()
+            return
+        else:
+            screen_and_log(dot, log_file)
+        # Commit configuration block
+        try:
+            connection.commit()
+        except Exception as err:
+            screen_and_log(("{0}: Commit fails : {1}".format(ip, err)), log_file)
+            return
+        else:
+            screen_and_log(dot, log_file)
+        # Unlock configuration block
         try:
             connection.unlock()
         except Exception as err:
-            print "{0}: Unable to Unlock the configuration : {1}".format(ip, err)
-        connection.close_session()
-        return
-
-    print dot,
-    try:
-        connection.commit()
-    except Exception as err:
-        print "{0}: Commit fails : {1}".format(ip, err)
-        output = 'Commit complete on %s at %s' % (host_name, ip)
-        return
-
-    print dot,
-    try:
-        connection.unlock()
-    except Exception as err:
-        print "{0}: Unable to Unlock the configuration : {1}".format(ip, err)
-        connection.close_session()
-        return
-
-    connection.close_session()
-    print "Successfully Completed Configuration"
+            screen_and_log(("{0}: Unable to Unlock the configuration : {1}".format(ip, err)), log_file)
+            connection.close_session()
+            return
+        else:
+            connection.close_session()
+            screen_and_log(" Completed!", log_file)
 
 
-def set_list(connection, ip, host_name, file_name):
-    """ Purpose: The -sl flag will trigger this function, which is used to parse a list of set commands in a file, and prepare them for sending.
-                 It will then call the set_command() function to actually send the list to the device and commit the changes.
-        Parameters:
-            connection  -   The NCClient manager connection to the remote device.
-            ip          -   String containing the IP of the remote device, used for logging purposes.
-            host_name   -   The device host-name for output purposes.
-            set_list_file_name    -   The filepath to the file containing the set commands, each on a separate line.
-    """
-    command_list = []
-    command_file = open(file_name, 'r')
-    for c in command_file:
-        command_list.append(c)
-    output = set_command(connection, ip, host_name, command_list)
-    return output
-
-
-def run(ip, username, password, port, command_list):
+def run(ip, username, password, port):
     """ Purpose: To open an NCClient manager session to the device, and run the appropriate function against the device.
         Parameters:
             ip          -   String of the IP of the device, to open the connection, and for logging purposes.
@@ -458,17 +451,13 @@ def run(ip, username, password, port, command_list):
         output = '*' * 45 + '\n\nBad username or password for device: %s\n' % ip
         print output
     else:
-        software_info = connection.get_software_information(format='xml')
-        host_name = software_info.xpath('//software-information/host-name')[0].text
-        output = set_command(connection, ip, host_name, command_list)
+        return connection
 
 
 def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip, hostname, username, password):
     """ Purpose: Perform the actual loading of the config file. Catch any errors.
     """
     dot = "."
-
-    screen_and_log(("*" * 80 + "\n"), log_file)
     screen_and_log(("Applying configuration on {0} ({1}) -> ".format(hostname, ip)), log_file)
     screen_and_log(dot, log_file)
     try:
@@ -528,7 +517,7 @@ def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip
 
     # End the NETCONF session and close the connection
     dev.close()
-    screen_and_log((" Successfully Completed!\n"), log_file)
+    screen_and_log((" Completed!\n"), log_file)
 
 # Prints output to a log file and the screen
 def screen_and_log(output, log_file):
