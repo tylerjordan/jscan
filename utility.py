@@ -423,7 +423,7 @@ def set_command(ip, username, password, port, log_file, command_list):
             return
         else:
             connection.close_session()
-            screen_and_log("Completed!", log_file)
+            screen_and_log("Completed!\n", log_file)
 
 
 def enable_netconf(ip, username, password, port, log_file=None):
@@ -470,6 +470,16 @@ def run(ip, username, password, port):
 
 def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip, hostname, username, password):
     """ Purpose: Perform the actual loading of the config file. Catch any errors.
+        Parameters:
+            format_opt      -   defines the format of input "set" or "hierarchical"
+            merge_opt       -   the merge options selection, "loadmerge"
+            overwrite_opt   -   the overwrite option selection, "loadoverwrite"
+            conf_file       -   the configuration file name, including path and filename
+            log_file        -   the log file name, including path and filename
+            ip              -   ip address of device
+            hostname        -   device hostname
+            username        -   username for logging in
+            password        -   password for username
     """
     dot = "."
     screen_and_log(("Applying configuration on {0} ({1}) -> ".format(hostname, ip)), log_file)
@@ -538,4 +548,4 @@ def screen_and_log(output, log_file=None):
     if log_file is not None:
         with open(log_file, 'a') as myfile:
             myfile.write(output)
-    print("--> " + output)
+    print(" |" + output)

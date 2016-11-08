@@ -165,10 +165,16 @@ Rack Menu
                         return
                     else:
                         print("Continuing with add...")
+                        model = dev.facts['model']
+                        curr_code = dev.facts['version']
+                        hostname = dev.facts['hostname']
+                        self.jrack.new_device(ip, model, curr_code, tar_code, hostname)
+                        print("Host: {0} ({1}) has been added.".format(hostname, ip))
+                        dev.close()
             except Exception as err:
                 print("Unable to open connection to: {0} ERROR: {1}").format(ip, err)
                 return
-            finally:
+            else:
                 model = dev.facts['model']
                 curr_code = dev.facts['version']
                 hostname = dev.facts['hostname']
@@ -285,7 +291,7 @@ Rack Menu
                     command_list.append(command)
 
         # Create log file for operation
-        log_file = "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+        log_file = Menu.log_dir + "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
         print('\nInformation logged in {0}'.format(log_file))
 
         # Loop over all devices in the rack
