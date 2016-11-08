@@ -11,6 +11,7 @@ import pprint
 
 from jnpr.junos import Device
 from jnpr.junos.utils.sw import SW
+from jnpr.junos.exception import *
 from jrack import JRack
 from utility import *
 from os.path import join
@@ -154,9 +155,20 @@ Rack Menu
             dev = Device(ip, user=Menu.username, password=Menu.password)
             try:
                 dev.open()
+            except ConnectRefusedError:
+                print("Issue connecting with NETCONF. Trying to enable NETCONF...")
+                if enable_netconf(ip, Menu.username, Menu.password, Menu.port):
+                    try:
+                        dev.open()
+                    except Exception as err:
+                        print("Unable to open connection to: {0} ERROR: {1}").format(ip, err)
+                        return
+                    else:
+                        print("Continuing with add...")
             except Exception as err:
-                print("Unable to open connection to: " + ip)
-            else:
+                print("Unable to open connection to: {0} ERROR: {1}").format(ip, err)
+                return
+            finally:
                 model = dev.facts['model']
                 curr_code = dev.facts['version']
                 hostname = dev.facts['hostname']
@@ -361,11 +373,11 @@ Rack Menu
         fullpathfile = Menu.image_dir + tar_code
         if os.path.isfile(fullpathfile):
             dev = Device(ip, user=Menu.username, password=Menu.password)
+            self.do_log('\n')
+            self.do_log('------------------------- Opening connection to: {0} -------------------------\n'.format(ip))
+            self.do_log('User: {0}'.format(Menu.username))
             # Try to open a connection to the device
             try:
-                self.do_log('\n')
-                self.do_log('------------------------- Opening connection to: {0} -------------------------\n'.format(ip))
-                self.do_log('User: {0}'.format(Menu.username))
                 dev.open()
             # If there is an error when opening the connection, display error and exit upgrade process
             except Exception as err:

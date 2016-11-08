@@ -423,8 +423,22 @@ def set_command(ip, username, password, port, log_file, command_list):
             return
         else:
             connection.close_session()
-            screen_and_log(" Completed!", log_file)
+            screen_and_log("Completed!", log_file)
 
+
+def enable_netconf(ip, username, password, port, log_file=None):
+    """ Purpose: To enable the netconf ssh service on a device that does not have it.
+    """
+    netconf_command = "set system services netconf ssh"
+    print("Trying to enable NETCONF on {0}").format(ip)
+    try:
+        set_command(ip, username, password, port, log_file, netconf_command)
+    except Exception as err:
+        print "Failed to enable NETCONF."
+        return False
+    else:
+        print "Successfully enabled NETCONF!"
+        return True
 
 def run(ip, username, password, port):
     """ Purpose: To open an NCClient manager session to the device, and run the appropriate function against the device.
@@ -520,7 +534,8 @@ def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip
     screen_and_log((" Completed!\n"), log_file)
 
 # Prints output to a log file and the screen
-def screen_and_log(output, log_file):
-    with open(log_file, 'a') as myfile:
-        myfile.write(output)
+def screen_and_log(output, log_file=None):
+    if log_file is not None:
+        with open(log_file, 'a') as myfile:
+            myfile.write(output)
     print("--> " + output)
