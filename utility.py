@@ -383,7 +383,7 @@ def set_command(ip, username, password, port, log_file, command_list):
         software_info = connection.get_software_information(format='xml')
         hostname = software_info.xpath('//software-information/host-name')[0].text
 
-        screen_and_log(("Applying configuration on {0} ({1}) -> ".format(hostname, ip)), log_file)
+        screen_and_log(("Applying configuration on {0} ({1}) ".format(hostname, ip)), log_file)
         screen_and_log(dot, log_file)
         try:
             connection.lock()
@@ -423,7 +423,7 @@ def set_command(ip, username, password, port, log_file, command_list):
             return
         else:
             connection.close_session()
-            screen_and_log("Completed!\n", log_file)
+            screen_and_log(" Completed!\n", log_file)
 
 
 def enable_netconf(ip, username, password, port, log_file=None):
@@ -468,7 +468,7 @@ def run(ip, username, password, port):
         return connection
 
 
-def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip, hostname, username, password):
+def load_with_pyez(merge_opt, overwrite_opt, conf_file, log_file, ip, hostname, username, password):
     """ Purpose: Perform the actual loading of the config file. Catch any errors.
         Parameters:
             format_opt      -   defines the format of input "set" or "hierarchical"
@@ -482,7 +482,7 @@ def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip
             password        -   password for username
     """
     dot = "."
-    screen_and_log(("Applying configuration on {0} ({1}) -> ".format(hostname, ip)), log_file)
+    screen_and_log(("Applying configuration on {0} ({1}) ".format(hostname, ip)), log_file)
     screen_and_log(dot, log_file)
     try:
         dev = Device(ip, user=username, password=password)
@@ -505,7 +505,7 @@ def load_with_pyez(format_opt, merge_opt, overwrite_opt, conf_file, log_file, ip
     #print("Try loading configuration changes...")
     screen_and_log(dot, log_file)
     try:
-        dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt, format=format_opt)
+        dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt)
     except (ConfigLoadError, Exception) as err:
         screen_and_log(("{0}: Unable to load configuration changes : {1}".format(ip, err)), log_file)
         screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
@@ -548,4 +548,4 @@ def screen_and_log(output, log_file=None):
     if log_file is not None:
         with open(log_file, 'a') as myfile:
             myfile.write(output)
-    print(" |" + output)
+    sys.stdout.write(output)

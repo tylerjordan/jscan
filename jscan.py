@@ -293,6 +293,9 @@ Rack Menu
         # Create log file for operation
         log_file = Menu.log_dir + "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
         print('\nInformation logged in {0}'.format(log_file))
+        print "*" * 50 + " COMMANDS " + "*" * 50
+        for command in command_list:
+            screen_and_log((" -> {0}\n".format(command)), log_file)
 
         # Loop over all devices in the rack
         print "*" * 50 + " START LOAD " + "*" * 50
@@ -311,38 +314,72 @@ Rack Menu
 
 
     def pyez_load(self):
-        """ Load configuration to the device using PyEZ methods. Accepts "set" format or "heirarchical" format.
+        """ Load configuration to the device using PyEZ methods. Accepts "set" format or "heirarchical" format. The
+                load function will determine the file format based on the extension. Here are the recognized extensions
+                and what type they represent.
+
+            conf,text,txt - curly-text-style
+            set - ascii-text, set-style
+            xml - ascii-text, XML
+
             loadmerge - Performs a 'load merge', merging config data with existing configuration
-            loadoverwrite - Replaces existing configuration with what is in the supplied config
+            loadoverwrite - Replaces ALL existing configuration with what is in the supplied config
             loadreplace - Replaces tagged parts of configuration
         """
-        # Collect the load options
-        format_options = [ 'set', 'hierarchy' ]
-        format_option = getOptionAnswer('Which format', format_options)
-        load_options = ['loadmerge', 'loadoverwrite', 'loadreplace']
-        load_option = getOptionAnswer('Which load type', load_options)
-
         merge_opt = False
         overwrite_opt = False
-        if load_option == 'loadmerge': merge_opt = True
-        if load_option == 'loadoverwrite': overwrite_opt = True
-        if format_option == 'hierarchy': format_option = 'conf'
+        config_file = ''
 
-        filelist = getFileList(Menu.config_dir)
-        # If the files exist...
-        if filelist:
-            config_file = getOptionAnswer("Choose a config file", filelist)
-            config_file = Menu.config_dir + config_file
+        # Find out if commands come from a file or entered directly
+        if getTFAnswer('\nProvide commands from a file'):
+            filelist = getFileList(Menu.config_dir)
+            # If the files exist...
+            if filelist:
+                config_file = getOptionAnswer("Choose a config file", filelist)
+                config_file = Menu.config_dir + config_file
+                # Collect the load options
+                load_options = ['loadmerge', 'loadoverwrite', 'loadreplace']
+                load_option = getOptionAnswer('Which load type', load_options)
+                # Set options as necessary
+                if load_option == 'loadmerge': merge_opt = True
+                if load_option == 'loadoverwrite': overwrite_opt = True
+            else:
+                print "Fail: No files available in config directory."
+                pass
+        # Enter commands in line by line
+        else:
+            config_file = Menu.config_dir + "temp_conf.set"
+            # Try to open the file for writing, will overwrite anything already in the file
+            try:
+                tempfile = open(config_file, 'w')
+            except Exception as err:
+                print "Failure opening file {0} | ERROR: {1}".format(config_file, err)
+            else:
+                # Provide selection for sending a single set command or multiple set commands, add to a file
+                while True:
+                    command = raw_input("Enter a set command: ")  # Change this to "input" when using Python 3
+                    if not command:
+                        break
+                    else:
+                        tempfile.write(command + "\n")
+                # Close the file
+                tempfile.close()
 
-            # Create log file
-            log_file = Menu.log_dir + "pyez_load_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
-            print('\nInformation logged in {0}'.format(log_file))
+        # Create log file
+        log_file = Menu.log_dir + "pyez_load_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+        print('\nInformation logged in {0}'.format(log_file))
 
-            # Loop over the devices
-            print "*" * 50 + " START LOAD " + "*" * 50
-            for device in self.jrack.devices:
-                results = load_with_pyez(format_option, merge_opt, overwrite_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
-            print "*" * 50 + " END LOAD " + "*" * 50
+        # Display the commands provided
+        print "*" * 50 + " COMMANDS " + "*" * 50
+        with open(config_file, 'r') as fin:
+            output = fin.read()
+            screen_and_log((" -> {0}\n".format(output)), log_file)
+
+        # Loop over the devices
+        print "*" * 50 + " START LOAD " + "*" * 50
+        for device in self.jrack.devices:
+            results = load_with_pyez(merge_opt, overwrite_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
+        print "*" * 50 + " END LOAD " + "*" * 50
 
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
