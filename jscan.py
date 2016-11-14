@@ -249,7 +249,7 @@ Rack Menu
                 try:
                     results = op_command(device.ip, device.hostname, command, Menu.username, Menu.password)
                 except Exception as err:
-                    print("Error running op_command : {0}").format(err)
+                    print("Error running op_command on {0}({1}) ERROR: {2}").format(device.hostname, device.ip, err)
                 else:
                     print results
                     # Append output to a variable, we'll save when done with output
@@ -263,7 +263,7 @@ Rack Menu
             try:
                 f = open(filename, 'w')
             except Exception as err:
-                print "Error writing to file - ERROR: {0}".format(err)
+                print "Problem writing to file {0} ERROR: {1}".format(filename, err)
             else:
                 f.write(output)
                 print "Output Written To: {0}".format(filename)
@@ -303,7 +303,7 @@ Rack Menu
             try:
                 set_command(device.ip, Menu.username, Menu.password, Menu.port, log_file, command_list)
             except Exception as err:
-                print "Error: {0}".format(err)
+                print "Problem changing configuration ERROR: {0}".format(err)
         print "*" * 50 + " END LOAD " + "*" * 50
 
 
