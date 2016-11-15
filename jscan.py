@@ -140,28 +140,33 @@ Rack Menu
         print t
 
     def add_device(self, ip=None, tar_code=None):
+        dot = "."
         # Add devices to the list
         if not ip:
             ip = raw_input("Enter an ip: ")						# Change this to "input" when using Python 3
         new_device = True
         ''' Make sure this device is not already in the list.'''
+        print "Adding host {0} ".format(ip),
         for device in self.jrack.devices:
             if ip in device.ip:
                 print("Host: {0} ({1}) already loaded.".format(device.hostname, ip))
                 new_device = False
                 break
         ''' Do this if this is a new device.'''
+        print dot,
         if new_device:
             dev = Device(ip, user=Menu.username, password=Menu.password)
             try:
+                print dot,
                 dev.open()
+                print dot,
             except ConnectRefusedError:
-                print("Issue connecting with NETCONF. Trying to enable NETCONF...")
+                print("\nIssue connecting with NETCONF. Trying to enable NETCONF...")
                 if enable_netconf(ip, Menu.username, Menu.password, Menu.port):
                     try:
                         dev.open()
                     except Exception as err:
-                        print("Unable to open connection to: {0} ERROR: {1}").format(ip, err)
+                        print("\nUnable to open connection to: {0} ERROR: {1}").format(ip, err)
                         return
                     else:
                         print("Continuing with add...")
@@ -169,7 +174,7 @@ Rack Menu
                         curr_code = dev.facts['version']
                         hostname = dev.facts['hostname']
                         self.jrack.new_device(ip, model, curr_code, tar_code, hostname)
-                        print("Host: {0} ({1}) has been added.".format(hostname, ip))
+                        print(" {0} ({1}) has been added.".format(hostname, ip))
                         dev.close()
             except Exception as err:
                 print("Unable to open connection to: {0} ERROR: {1}").format(ip, err)
@@ -179,7 +184,7 @@ Rack Menu
                 curr_code = dev.facts['version']
                 hostname = dev.facts['hostname']
                 self.jrack.new_device(ip, model, curr_code, tar_code, hostname)
-                print("Host: {0} ({1}) has been added.".format(hostname, ip))
+                print(" {0} ({1}) has been added.".format(hostname, ip))
                 dev.close()
 
     def load_devices(self):
@@ -240,9 +245,11 @@ Rack Menu
         filename = ""
         if getTFAnswer('\nPrint output to a file'):
             filename = "oper_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+            print('Information logged in {0}'.format(log_file))
+
 
         output = ""
-
+        print('USER: {0}').format(Menu.username)
         # Loop over commands and devices
         for command in command_list:
             for device in self.jrack.devices:
@@ -293,18 +300,19 @@ Rack Menu
         # Create log file for operation
         log_file = Menu.log_dir + "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
         print('\nInformation logged in {0}'.format(log_file))
-        print "*" * 50 + " COMMANDS " + "*" * 50
+        screen_and_log(('USER: {0}\n').format(Menu.username), log_file)
+        screen_and_log("*" * 50 + " COMMANDS " + "*" * 50 + '\n', log_file)
         for command in command_list:
             screen_and_log((" -> {0}\n".format(command)), log_file)
 
         # Loop over all devices in the rack
-        print "*" * 50 + " START LOAD " + "*" * 50
+        screen_and_log("*" * 50 + " START LOAD " + "*" * 50 + '\n', log_file)
         for device in self.jrack.devices:
             try:
                 set_command(device.ip, Menu.username, Menu.password, Menu.port, log_file, command_list)
             except Exception as err:
                 print "Problem changing configuration ERROR: {0}".format(err)
-        print "*" * 50 + " END LOAD " + "*" * 50
+        screen_and_log("*" * 50 + " END LOAD " + "*" * 50 + '\n', log_file)
 
 
     def clear_devices(self):
