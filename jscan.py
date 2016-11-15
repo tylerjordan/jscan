@@ -249,7 +249,7 @@ Rack Menu
 
 
         output = ""
-        print('USER: {0}').format(Menu.username)
+        print('User: {0}').format(Menu.username)
         # Loop over commands and devices
         for command in command_list:
             for device in self.jrack.devices:
@@ -300,7 +300,7 @@ Rack Menu
         # Create log file for operation
         log_file = Menu.log_dir + "set_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
         print('\nInformation logged in {0}'.format(log_file))
-        screen_and_log(('USER: {0}\n').format(Menu.username), log_file)
+        screen_and_log(('User: {0}\n').format(Menu.username), log_file)
         screen_and_log("*" * 50 + " COMMANDS " + "*" * 50 + '\n', log_file)
         for command in command_list:
             screen_and_log((" -> {0}\n".format(command)), log_file)
@@ -376,18 +376,24 @@ Rack Menu
         # Create log file
         log_file = Menu.log_dir + "pyez_load_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
         print('\nInformation logged in {0}'.format(log_file))
+        screen_and_log(("User: {0}").format(Menu.username), log_file)
 
         # Display the commands provided
-        print "*" * 50 + " COMMANDS " + "*" * 50
-        with open(config_file, 'r') as fin:
-            output = fin.read()
-            screen_and_log((" -> {0}\n".format(output)), log_file)
+        screen_and_log("*" * 50 + " COMMANDS " + "*" * 50 + "\n", log_file)
+        try:
+            myfile = open(config_file, 'r')
+        except Exception as err:
+            print "Failure opening {0} | ERROR: {1}".format(config_file, err)
+        else:
+            for line in myfile.readlines():
+                screen_and_log((" -> {0}".format(line)), log_file)
+            myfile.close()
 
         # Loop over the devices
-        print "*" * 50 + " START LOAD " + "*" * 50
+        screen_and_log("*" * 50 + " START LOAD " + "*" * 50 + "\n", log_file)
         for device in self.jrack.devices:
             results = load_with_pyez(merge_opt, overwrite_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
-        print "*" * 50 + " END LOAD " + "*" * 50
+        screen_and_log("*" * 50 + " END LOAD " + "*" * 50 + "\n", log_file)
 
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
