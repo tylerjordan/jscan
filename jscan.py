@@ -379,7 +379,7 @@ Rack Menu
         screen_and_log(("User: {0}").format(Menu.username), log_file)
 
         # Display the commands provided
-        screen_and_log("\n*" * 50 + " COMMANDS " + "*" * 50 + "\n", log_file)
+        screen_and_log("\n" + "*" * 50 + " COMMANDS " + "*" * 50 + "\n", log_file)
         try:
             myfile = open(config_file, 'r')
         except Exception as err:
@@ -390,7 +390,7 @@ Rack Menu
             myfile.close()
 
         # Loop over the devices
-        screen_and_log("\n*" * 50 + " START LOAD " + "*" * 50 + "\n", log_file)
+        screen_and_log("\n" + "*" * 50 + " START LOAD " + "*" * 50 + "\n", log_file)
         for device in self.jrack.devices:
             results = load_with_pyez(merge_opt, overwrite_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
         screen_and_log("*" * 50 + " END LOAD " + "*" * 50 + "\n", log_file)
