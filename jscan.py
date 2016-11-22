@@ -156,6 +156,7 @@ Rack Menu
         print dot,
         if new_device:
             dev = Device(ip, user=Menu.username, password=Menu.password)
+            attribList = ['model', 'version', 'hostname']
             try:
                 print dot,
                 dev.open()
@@ -170,21 +171,25 @@ Rack Menu
                         return
                     else:
                         print("Continuing with add...")
-                        model = dev.facts['model']
-                        curr_code = dev.facts['version']
-                        hostname = dev.facts['hostname']
-                        self.jrack.new_device(ip, model, curr_code, tar_code, hostname)
-                        print(" {0} ({1}) has been added.".format(hostname, ip))
-                        dev.close()
+                        for key in attribList:
+                            if key not in dev.facts:
+                                print "Missing attribute '{1}', skipping {0}".format(ip, key)
+                                #dev.close()
+                                return
+                        self.jrack.new_device(ip, dev.facts['model'], dev.facts['version'], tar_code, dev.facts['hostname'])
+                        print(" {0} ({1}) has been added.".format(ip, dev.facts['hostname']))
             except Exception as err:
                 print("Unable to open connection to: {0} ERROR: {1}").format(ip, err)
                 return
             else:
-                model = dev.facts['model']
-                curr_code = dev.facts['version']
-                hostname = dev.facts['hostname']
-                self.jrack.new_device(ip, model, curr_code, tar_code, hostname)
-                print(" {0} ({1}) has been added.".format(hostname, ip))
+                #print dev.facts
+                for key in attribList:
+                    if key not in dev.facts:
+                        print "Missing attribute '{1}', skipping {0}".format(ip, key)
+                        # dev.close()
+                        return
+                self.jrack.new_device(ip, dev.facts['model'], dev.facts['version'], tar_code, dev.facts['hostname'])
+                print(" {0} ({1}) has been added.".format(ip, dev.facts['hostname']))
                 dev.close()
 
     def load_devices(self):
