@@ -247,14 +247,14 @@ Rack Menu
                 command_list.append(command)
 
         # Check if user wants to print output to a file
-        filename = ""
+        log_file = None
         if getTFAnswer('\nPrint output to a file'):
-            filename = "oper_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+            log_file = Menu.log_dir + "oper_cmd_" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + ".log"
             print('Information logged in {0}'.format(log_file))
 
 
         output = ""
-        print('User: {0}').format(Menu.username)
+        screen_and_log(('User: {0}\n').format(Menu.username), log_file)
         # Loop over commands and devices
         for command in command_list:
             for device in self.jrack.devices:
@@ -263,22 +263,21 @@ Rack Menu
                 except Exception as err:
                     print("Error running op_command on {0}({1}) ERROR: {2}").format(device.hostname, device.ip, err)
                 else:
-                    print results
+                    screen_and_log(results, log_file)
                     # Append output to a variable, we'll save when done with output
-                    if filename:
+                    if log_file:
                         output += results
-        print "\n" + "*" * 30 + " Commands Completed " + "*" * 30 + "\n"
+        screen_and_log(("\n" + "*" * 30 + " Commands Completed " + "*" * 30 + "\n"), log_file)
 
         # Check if a file was requested, if so print output to file
-        if filename:
-            filename = Menu.log_dir + filename
+        if log_file:
             try:
-                f = open(filename, 'w')
+                f = open(log_file, 'w')
             except Exception as err:
-                print "Problem writing to file {0} ERROR: {1}".format(filename, err)
+                print "Problem writing to file {0} ERROR: {1}".format(log_file, err)
             else:
                 f.write(output)
-                print "Output Written To: {0}".format(filename)
+                print "Output Written To: {0}".format(log_file)
             f.close()
 
 

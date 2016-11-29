@@ -339,30 +339,11 @@ def op_command(ip, host_name, command, username, password, port=22):
         while not stderr.channel.exit_status_ready():
             output += stderr.read()
         stderr.close()
-        output = '%s \n %s' % (device, output)
+        output = '%s\n%s' % (device, output)
         return output
     except paramiko.AuthenticationException:
         output = '*' * 45 + '\n\nBad username or password for device: %s\n' % ip
         return output
-
-# Run multiple non-edit commands from a file
-def op_multiple_commands(ip, host_name, multiple_commands, username, password, port=22):
-    """ Purpose: For the -mc flag, this function is called. It will connect to a device, run the list of specified commands, and return the output.
-        Parameters:
-            connection          -   The NCClient manager connection to the remote device.
-            ip                  -   String containing the IP of the remote device, used for logging purposes.
-            host_name           -   The device host-name for output purposes.
-            multiple_commands   -   The file containing the list of commands.
-            commands            -   String containing the command to be sent to the device.
-            username            -   Username used to log into the device
-    """
-    output = ''
-    command_file = open(multiple_commands, 'r')
-    for command in command_file:
-        command = command.rstrip()
-        output += op_command(ip, host_name, command, username, password, port)
-    return output
-
 
 def set_command(ip, username, password, port, log_file, command_list):
     """ Purpose: This is the function for the -s or -sl flags. it will send set command(s) to a device, and commit the change.
