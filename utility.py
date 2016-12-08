@@ -371,30 +371,34 @@ def set_command(ip, username, password, port, log_file, command_list):
         except Exception as err:
             screen_and_log(("{0}: Unable to Lock configuration : {1}".format(ip, err)), log_file)
             return
-        else:
-            screen_and_log(dot, log_file)
+        screen_and_log(dot, log_file)
         # Load configuration block
         try:
             connection.load_configuration(action='set', config=command_list)
-        except Exception as err:
-            screen_and_log(("{0}: Unable to Load the configuration : {1}".format(ip, err)), log_file)
-            screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
-            try:
-                connection.unlock()
-            except Exception as err:
-                screen_and_log(("{0}: Unable to Unlock the configuration : {1}".format(ip, err)), log_file)
-            connection.close_session()
-            return
-        else:
-            screen_and_log(dot, log_file)
+        except (ConfigLoadError, Exception) as err:
+            if 'statement not found' in err.message:
+                print "Bypassing warning through message"
+                pass
+            elif err.rpc_error['severity'] == 'warning':
+                print "Bypassing warning through severity"
+                pass
+            else:
+                screen_and_log(("{0}: Unable to Load the configuration : {1}".format(ip, err)), log_file)
+                screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
+                try:
+                    connection.unlock()
+                except Exception as err:
+                    screen_and_log(("{0}: Unable to Unlock the configuration : {1}".format(ip, err)), log_file)
+                connection.close_session()
+                return
+        screen_and_log(dot, log_file)
         # Commit configuration block
         try:
             connection.commit()
         except Exception as err:
             screen_and_log(("{0}: Commit fails : {1}".format(ip, err)), log_file)
             return
-        else:
-            screen_and_log(dot, log_file)
+        screen_and_log(dot, log_file)
         # Unlock configuration block
         try:
             connection.unlock()
@@ -402,9 +406,8 @@ def set_command(ip, username, password, port, log_file, command_list):
             screen_and_log(("{0}: Unable to Unlock the configuration : {1}".format(ip, err)), log_file)
             connection.close_session()
             return
-        else:
-            connection.close_session()
-            screen_and_log(" Completed!\n", log_file)
+        connection.close_session()
+        screen_and_log(" Completed!\n", log_file)
 
 
 def enable_netconf(ip, username, password, port, log_file=None):

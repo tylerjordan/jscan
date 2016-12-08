@@ -174,8 +174,9 @@ Rack Menu
                         for key in attribList:
                             if key not in dev.facts:
                                 print "Missing attribute '{1}', skipping {0}".format(ip, key)
+                                dev.facts[key] = 'EMPTY'
                                 #dev.close()
-                                return
+                                #return
                         self.jrack.new_device(ip, dev.facts['model'], dev.facts['version'], tar_code, dev.facts['hostname'])
                         print(" {0} ({1}) has been added.".format(ip, dev.facts['hostname']))
             except Exception as err:
