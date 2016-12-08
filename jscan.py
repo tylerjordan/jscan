@@ -341,6 +341,7 @@ Rack Menu
         """
         merge_opt = False
         overwrite_opt = False
+        format_opt = None
         config_file = ''
 
         # Find out if commands come from a file or entered directly
@@ -351,11 +352,12 @@ Rack Menu
                 config_file = getOptionAnswer("Choose a config file", filelist)
                 config_file = Menu.config_dir + config_file
                 # Collect the load options
-                load_options = ['loadmerge', 'loadoverwrite', 'loadreplace']
+                load_options = ['loadmerge', 'loadoverwrite', 'loadreplace', 'loadset']
                 load_option = getOptionAnswer('Which load type', load_options)
                 # Set options as necessary
-                if load_option == 'loadmerge': merge_opt = True
+                if load_option == 'loadmerge' or load_option == 'loadset': merge_opt = True
                 if load_option == 'loadoverwrite': overwrite_opt = True
+                if load_option == 'loadset': format_opt = True
             else:
                 print "Fail: No files available in config directory."
                 pass
@@ -397,7 +399,7 @@ Rack Menu
         # Loop over the devices
         screen_and_log("\n" + "*" * 50 + " START LOAD " + "*" * 50 + "\n", log_file)
         for device in self.jrack.devices:
-            results = load_with_pyez(merge_opt, overwrite_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
+            results = load_with_pyez(merge_opt, overwrite_opt, format_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
         screen_and_log("*" * 50 + " END LOAD " + "*" * 50 + "\n", log_file)
 
 

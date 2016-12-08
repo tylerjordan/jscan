@@ -377,11 +377,11 @@ def set_command(ip, username, password, port, log_file, command_list):
             connection.load_configuration(action='set', config=command_list)
         except (ConfigLoadError, Exception) as err:
             if 'statement not found' in err.message:
-                print "Bypassing warning through message"
+                #print "Bypassing warning through message"
                 pass
-            elif err.rpc_error['severity'] == 'warning':
-                print "Bypassing warning through severity"
-                pass
+            #elif err.rpc_error['severity'] == 'warning':
+            #    print "Bypassing warning through severity"
+            #    pass
             else:
                 screen_and_log(("{0}: Unable to Load the configuration : {1}".format(ip, err)), log_file)
                 screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
@@ -452,7 +452,7 @@ def run(ip, username, password, port):
         return connection
 
 
-def load_with_pyez(merge_opt, overwrite_opt, conf_file, log_file, ip, hostname, username, password):
+def load_with_pyez(merge_opt, overwrite_opt, format_opt, conf_file, log_file, ip, hostname, username, password):
     """ Purpose: Perform the actual loading of the config file. Catch any errors.
         Parameters:
             format_opt      -   defines the format of input "set" or "hierarchical"
@@ -489,8 +489,16 @@ def load_with_pyez(merge_opt, overwrite_opt, conf_file, log_file, ip, hostname, 
     #print("Try loading configuration changes...")
     screen_and_log(dot, log_file)
     try:
-        dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt)
-    except (ConfigLoadError, Exception) as err:
+        if format is None:
+            dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt)
+        else:
+            dev.cu.load(path=conf_file, merge=merge_opt, format="set")
+    except ConfigLoadError as err:
+        if err.rpc_error['severity'] == 'warning':
+            pass
+        elif 'statement not found' in err.message:
+            pass
+    except Exception as err:
         screen_and_log(("{0}: Unable to load configuration changes : {1}".format(ip, err)), log_file)
         screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
         try:
