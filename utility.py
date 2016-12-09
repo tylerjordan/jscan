@@ -46,6 +46,30 @@ def getOptionAnswer(question, options):
         answer = ""
         loop = 0
 
+# Method for asking a question that can have multiple answers, returns list of answers
+def getOptionMultiAnswer(question, options):
+    answer_str = ""
+    loop = 0
+    while not answer_str:
+        print question + '?:\n'
+        for option in options:
+            loop += 1
+            print '[' + str(loop) + '] -> ' + option
+        answer_str = raw_input('Your Selections: ')
+        try:
+            answer_list = []
+            index_list = answer_str.split(",")
+            for answer in index_list:
+                index = int(answer) - 1
+                answer_list.append(options[index])
+            return answer_list
+        except Exception as err:
+            print "Invalid Entry - ERROR: {0}".format(err)
+        else:
+            print "Bad Selection"
+        answer_str = ""
+        loop = 0
+
 # Method for asking a question that has a single answer, returns answer index
 def getOptionAnswerIndex(question, options):
     answer = ""
@@ -493,19 +517,19 @@ def load_with_pyez(merge_opt, overwrite_opt, format_opt, conf_file, log_file, ip
             dev.cu.load(path=conf_file, merge=merge_opt, overwrite=overwrite_opt)
         else:
             dev.cu.load(path=conf_file, merge=merge_opt, format="set")
-    except ConfigLoadError as err:
+    except (ConfigLoadError, Exception) as err:
         if err.rpc_error['severity'] == 'warning':
             pass
         elif 'statement not found' in err.message:
             pass
-    except Exception as err:
-        screen_and_log(("{0}: Unable to load configuration changes : {1}".format(ip, err)), log_file)
-        screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
-        try:
-            dev.cu.unlock()
-        except UnlockError as err:
-            screen_and_log(("{0}: Unable to unlock configuration : {1}".format(ip, err)), log_file)
-        dev.close()
+        else:
+            screen_and_log(("{0}: Unable to load configuration changes : {1}".format(ip, err)), log_file)
+            screen_and_log(("{0}: Unlocking the configuration".format(ip)), log_file)
+            try:
+                dev.cu.unlock()
+            except UnlockError as err:
+                screen_and_log(("{0}: Unable to unlock configuration : {1}".format(ip, err)), log_file)
+            dev.close()
         return
 
     #print("Try committing the configuration...")

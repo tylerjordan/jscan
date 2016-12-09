@@ -322,9 +322,35 @@ Rack Menu
 
     def clear_devices(self):
         # Loop through devices and delete object instance
-        print("Removing Devices")
-        self.jrack.devices = []
+        #print("Removing Devices")
+        #self.jrack.devices = []
 
+        # Loop for deleting single device
+        ip_list = []
+        ip_list.append('ALL DEVICES')
+        ip_list.append('MULTI SELECT')
+        for device in self.jrack.devices:
+            ip_list.append(device.ip)
+
+        # Ask user what devices or methods to use for removing devices
+        if ip_list:
+            ip_del_list = []
+            myip = getOptionAnswer("Select a device to delete", ip_list)
+            if myip == 'ALL DEVICES':
+                self.jrack.devices = []
+                return
+            elif myip == 'MULTI SELECT':
+                ip_list.pop(0)
+                ip_list.pop(0)
+                ip_del_list = getOptionMultiAnswer("Select devices to delete, separated by commas", ip_list)
+            else:
+                ip_del_list.append(myip)
+
+            # Delete the devices in the list
+            for i, o in enumerate(self.jrack.devices):
+                if o.ip in ip_del_list:
+                    print "Deleting {0}".format(o.ip)
+                    del self.jrack.devices[i]
 
     def pyez_load(self):
         """ Load configuration to the device using PyEZ methods. Accepts "set" format or "heirarchical" format. The
