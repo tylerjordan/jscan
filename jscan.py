@@ -204,10 +204,12 @@ Rack Menu
                 print("Scanning Upgrade CSV")
                 print("----------------------\n")
                 for row in reader:
-                    if not row['UPGRADE_IMG']:
+                    if row['IP_ADDR'] and not row['UPGRADE_IMG']:
                         self.add_device(row['IP_ADDR'])
-                    else:
+                    elif row['UPGRADE_IMG']:
                         self.add_device(row['IP_ADDR'], row['UPGRADE_IMG'])
+                    else:
+                        print "- Blank Row -"
         else:
             print("No files present in 'lists' directory.")
 
