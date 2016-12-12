@@ -530,7 +530,7 @@ def load_with_pyez(merge_opt, overwrite_opt, format_opt, conf_file, log_file, ip
             except UnlockError as err:
                 screen_and_log(("{0}: Unable to unlock configuration : {1}".format(ip, err)), log_file)
             dev.close()
-        return
+            return
 
     #print("Try committing the configuration...")
     screen_and_log(dot, log_file)
