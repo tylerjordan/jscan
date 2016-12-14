@@ -50,7 +50,7 @@ def getOptionAnswer(question, options):
 def getOptionMultiAnswer(question, options):
     answer_str = ""
     loop = 0
-    while not answer_str:
+    while not answer_str and options:
         print question + '?:\n'
         for option in options:
             loop += 1

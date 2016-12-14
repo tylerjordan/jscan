@@ -344,18 +344,24 @@ Rack Menu
             elif myip == 'MULTI SELECT':
                 ip_list.pop(0)
                 ip_list.pop(0)
-                ip_del_list = getOptionMultiAnswer("Select devices to delete, separated by commas", ip_list)
+                ip_del_list = getOptionMultiAnswer("Select devices to delete (ie. 2,3,5...)", ip_list)
             else:
                 ip_del_list.append(myip)
 
             # Delete the devices in the list
-            for i, o in enumerate(self.jrack.devices):
-                if o.ip in ip_del_list:
-                    print "Deleting {0}".format(o.ip)
-                    del self.jrack.devices[i]
+            if ip_del_list:
+                for del_dev in ip_del_list:
+                    #print "Searching for {0}".format(del_dev)
+                    for i, dev in enumerate(self.jrack.devices):
+                        #print "i: {0} | dev: {1}".format(i, dev.ip)
+                        if del_dev == dev.ip:
+                            del self.jrack.devices[i]
+                            print "Deleted {0}".format(dev.ip)
+            else:
+                print "No devices selected."
 
     def pyez_load(self):
-        """ Load configuration to the device using PyEZ methods. Accepts "set" format or "heirarchical" format. The
+        """ Load configuration to the device using PyEZ methods. Accepts "set" format or "hierarchical" format. The
                 load function will determine the file format based on the extension. Here are the recognized extensions
                 and what type they represent.
 
