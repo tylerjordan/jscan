@@ -433,7 +433,6 @@ def set_command(ip, username, password, port, log_file, command_list):
         connection.close_session()
         screen_and_log(" Completed!\n", log_file)
 
-
 def enable_netconf(ip, username, password, port, log_file=None):
     """ Purpose: To enable the netconf ssh service on a device that does not have it.
     """
@@ -474,7 +473,6 @@ def run(ip, username, password, port):
         print output
     else:
         return connection
-
 
 def load_with_pyez(merge_opt, overwrite_opt, format_opt, conf_file, log_file, ip, hostname, username, password):
     """ Purpose: Perform the actual loading of the config file. Catch any errors.

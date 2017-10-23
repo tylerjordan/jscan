@@ -17,6 +17,7 @@ from utility import *
 from os.path import join
 from getpass import getpass
 from prettytable import PrettyTable
+from ncclient.operations.errors import TimeoutExpiredError
 
 
 class Menu:
@@ -191,7 +192,10 @@ Rack Menu
                         return
                 self.jrack.new_device(ip, dev.facts['model'], dev.facts['version'], tar_code, dev.facts['hostname'])
                 print(" {0} ({1}) has been added.".format(ip, dev.facts['hostname']))
-                dev.close()
+                try:
+                    dev.close()
+                except TimeoutExpiredError:
+                    print "Timed out closing connection"
 
     def load_devices(self):
         # Load from a list of devices
@@ -212,7 +216,6 @@ Rack Menu
                         print "- Blank Row -"
         else:
             print("No files present in 'lists' directory.")
-
 
     def refresh_device(self):
         # Loop through devices and update code and date/time
@@ -237,7 +240,6 @@ Rack Menu
         # Display a message if no changes were detected
         if not changes:
             print("\nNo changes!")
-
 
     def oper_commands(self):
         # Provide selection for sending a single command or multiple commands from a file
@@ -283,7 +285,6 @@ Rack Menu
                 print "Output Written To: {0}".format(log_file)
             f.close()
 
-
     def set_commands(self):
         # Provide option for using a file to supply configuration commands
         command_list = []
@@ -320,7 +321,6 @@ Rack Menu
             except Exception as err:
                 print "Problem changing configuration ERROR: {0}".format(err)
         screen_and_log("*" * 50 + " END LOAD " + "*" * 50 + '\n', log_file)
-
 
     def clear_devices(self):
         # Loop through devices and delete object instance
@@ -435,7 +435,6 @@ Rack Menu
         for device in self.jrack.devices:
             results = load_with_pyez(merge_opt, overwrite_opt, format_opt, config_file, log_file, device.ip, device.hostname, Menu.username, Menu.password)
         screen_and_log("*" * 50 + " END LOAD " + "*" * 50 + "\n", log_file)
-
 
     def upgrade_device(self, ip, hostname, tar_code, reboot="askReboot"):
         # Upgrade single device
