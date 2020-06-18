@@ -1,6 +1,6 @@
 # Author: Tyler Jordan
 # File: jscan.py
-# Last Modified: 9/28/2016
+# Last Modified: 9/28/2020
 # Description: main execution file, starts the top-level menu
 
 import getopt
