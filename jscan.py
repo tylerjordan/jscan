@@ -88,13 +88,13 @@ Rack Menu
             Menu.status_log = "./logs/Juniper_Status_Log.csv"
 
         if not exists(Menu.list_dir):
-            print "Missing 'lists' directory! Create a directory in jscan directory called 'lists'."
+            print("Missing 'lists' directory! Create a directory in jscan directory called 'lists'.")
             return False
         if not exists(Menu.image_dir):
-            print "Missing 'images' directory! Create a directory in jscan directory called 'images'."
+            print("Missing 'images' directory! Create a directory in jscan directory called 'images'.")
             return False
         if not exists(Menu.log_dir):
-            print "Missing 'logs' directory! Create a directory in jscan directory called 'logs'."
+            print("Missing 'logs' directory! Create a directory in jscan directory called 'logs'.")
             return False
 
         return True
@@ -129,7 +129,7 @@ Rack Menu
                 else:
                     print("{0} is not a valid choice".format(choice))
         else:
-            print "Please fix issues and run again."
+            print("Please fix issues and run again.")
             sys.exit(0)
 
     def show_devices(self):
@@ -138,7 +138,7 @@ Rack Menu
         t = PrettyTable(['IP', 'Model', 'Current Code', 'Target Code', 'Host', 'Last Updated'])
         for device in devices:
             t.add_row([device.ip, device.model, device.curr_code, device.tar_code, device.hostname, device.refresh])
-        print t
+        print(t)
 
     def add_device(self, ip=None, tar_code=None):
         dot = "."
@@ -147,21 +147,21 @@ Rack Menu
             ip = raw_input("Enter an ip: ")						# Change this to "input" when using Python 3
         new_device = True
         ''' Make sure this device is not already in the list.'''
-        print "Adding host {0} ".format(ip),
+        print("Adding host {0} ".format(ip),)
         for device in self.jrack.devices:
             if ip in device.ip:
                 print("Host: {0} ({1}) already loaded.".format(device.hostname, ip))
                 new_device = False
                 break
         ''' Do this if this is a new device.'''
-        print dot,
+        print(dot,)
         if new_device:
             dev = Device(ip, user=Menu.username, password=Menu.password)
             attribList = ['model', 'version', 'hostname']
             try:
-                print dot,
+                print(dot,)
                 dev.open()
-                print dot,
+                print(dot,)
             except ConnectRefusedError:
                 print("\nIssue connecting with NETCONF. Trying to enable NETCONF...")
                 if enable_netconf(ip, Menu.username, Menu.password, Menu.port):
@@ -174,7 +174,7 @@ Rack Menu
                         print("Continuing with add...")
                         for key in attribList:
                             if key not in dev.facts:
-                                print "Missing attribute '{1}', skipping {0}".format(ip, key)
+                                print("Missing attribute '{1}', skipping {0}".format(ip, key))
                                 dev.facts[key] = 'EMPTY'
                                 #dev.close()
                                 #return
@@ -187,7 +187,7 @@ Rack Menu
                 #print dev.facts
                 for key in attribList:
                     if key not in dev.facts:
-                        print "Missing attribute '{1}', skipping {0}".format(ip, key)
+                        print("Missing attribute '{1}', skipping {0}".format(ip, key))
                         # dev.close()
                         return
                 self.jrack.new_device(ip, dev.facts['model'], dev.facts['version'], tar_code, dev.facts['hostname'])
@@ -195,7 +195,7 @@ Rack Menu
                 try:
                     dev.close()
                 except TimeoutExpiredError:
-                    print "Timed out closing connection"
+                    print("Timed out closing connection")
 
     def load_devices(self):
         # Load from a list of devices
@@ -213,7 +213,7 @@ Rack Menu
                     elif row['UPGRADE_IMG']:
                         self.add_device(row['IP_ADDR'], row['UPGRADE_IMG'])
                     else:
-                        print "- Blank Row -"
+                        print("- Blank Row -")
         else:
             print("No files present in 'lists' directory.")
 
@@ -222,7 +222,7 @@ Rack Menu
         changes = False
         print("Please be patient")
         for device in self.jrack.devices:
-            print ".",
+            print(".",)
             dev = Device(device.ip, user=Menu.username, password=Menu.password)
             try:
                 dev.open()
@@ -279,10 +279,10 @@ Rack Menu
             try:
                 f = open(log_file, 'w')
             except Exception as err:
-                print "Problem writing to file {0} ERROR: {1}".format(log_file, err)
+                print("Problem writing to file {0} ERROR: {1}".format(log_file, err))
             else:
                 f.write(output)
-                print "Output Written To: {0}".format(log_file)
+                print("Output Written To: {0}".format(log_file))
             f.close()
 
     def set_commands(self):
@@ -319,7 +319,7 @@ Rack Menu
             try:
                 set_command(device.ip, Menu.username, Menu.password, Menu.port, log_file, command_list)
             except Exception as err:
-                print "Problem changing configuration ERROR: {0}".format(err)
+                print("Problem changing configuration ERROR: {0}".format(err))
         screen_and_log("*" * 50 + " END LOAD " + "*" * 50 + '\n', log_file)
 
     def clear_devices(self):
@@ -356,9 +356,9 @@ Rack Menu
                         #print "i: {0} | dev: {1}".format(i, dev.ip)
                         if del_dev == dev.ip:
                             del self.jrack.devices[i]
-                            print "Deleted {0}".format(dev.ip)
+                            print("Deleted {0}".format(dev.ip))
             else:
-                print "No devices selected."
+                print("No devices selected.")
 
     def pyez_load(self):
         """ Load configuration to the device using PyEZ methods. Accepts "set" format or "hierarchical" format. The
@@ -393,7 +393,7 @@ Rack Menu
                 if load_option == 'loadoverwrite': overwrite_opt = True
                 if load_option == 'loadset': format_opt = True
             else:
-                print "Fail: No files available in config directory."
+                print("Fail: No files available in config directory.")
                 pass
         # Enter commands in line by line
         else:
@@ -402,7 +402,7 @@ Rack Menu
             try:
                 tempfile = open(config_file, 'w')
             except Exception as err:
-                print "Failure opening file {0} | ERROR: {1}".format(config_file, err)
+                print("Failure opening file {0} | ERROR: {1}".format(config_file, err))
             else:
                 # Provide selection for sending a single set command or multiple set commands, add to a file
                 while True:
@@ -424,7 +424,7 @@ Rack Menu
         try:
             myfile = open(config_file, 'r')
         except Exception as err:
-            print "Failure opening {0} | ERROR: {1}".format(config_file, err)
+            print("Failure opening {0} | ERROR: {1}".format(config_file, err))
         else:
             for line in myfile.readlines():
                 screen_and_log((" -> {0}".format(line)), log_file)
@@ -575,7 +575,7 @@ Rack Menu
         t = PrettyTable(['IP', 'Model', 'Current Code', 'Target Code', 'Reboot'])
         for device in devices:
             t.add_row([device.ip, device.model, device.curr_code, device.tar_code, reboot])
-        print t
+        print(t)
         # Last confirmation before entering loop
         verified = getYNAnswer("Please Verify the information above. Continue")
 
@@ -633,7 +633,7 @@ Rack Menu
         t = PrettyTable(['IP', 'Model', 'Before Reboot', 'After Reboot'])
         for device in devices:
             t.add_row([device.ip, device.model, device.curr_code, device.tar_code])
-        print t
+        print(t)
         # Last confirmation before entering loop
         verified = getYNAnswer("Please Verify the information above. Continue")
 
