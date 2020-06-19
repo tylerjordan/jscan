@@ -4,6 +4,7 @@
 # Description: main execution file
 
 import getopt
+import sys
 import csv
 import logging
 import datetime
@@ -154,14 +155,14 @@ Rack Menu
                 new_device = False
                 break
         ''' Do this if this is a new device.'''
-        print(dot,)
+        stdout.write(dot)
         if new_device:
             dev = Device(ip, user=Menu.username, password=Menu.password)
             attribList = ['model', 'version', 'hostname']
             try:
-                print(dot,)
+                stdout.write(dot)
                 dev.open()
-                print(dot,)
+                stdout.write(dot)
             except ConnectRefusedError:
                 print("\nIssue connecting with NETCONF. Trying to enable NETCONF...")
                 if enable_netconf(ip, Menu.username, Menu.password, Menu.port):
@@ -222,7 +223,7 @@ Rack Menu
         changes = False
         print("Please be patient")
         for device in self.jrack.devices:
-            print(".",)
+            stdout.write(dot)
             dev = Device(device.ip, user=Menu.username, password=Menu.password)
             try:
                 dev.open()
