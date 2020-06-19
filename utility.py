@@ -329,7 +329,7 @@ def get_fact(ip, username, password, fact):
     try:
         dev.open()
     except Exception as err:
-        print("Unable to open connection to: {0} | ERROR: {1}").format(ip, err)
+        print("Unable to open connection to: {0} | ERROR: {1}".format(ip, err))
     else:
         myfact = dev.facts[fact]
         dev.close()
@@ -437,7 +437,7 @@ def enable_netconf(ip, username, password, port, log_file=None):
     """ Purpose: To enable the netconf ssh service on a device that does not have it.
     """
     netconf_command = "set system services netconf ssh"
-    print("Trying to enable NETCONF on {0}").format(ip)
+    print("Trying to enable NETCONF on {0}".format(ip))
     try:
         set_command(ip, username, password, port, log_file, netconf_command)
     except Exception as err:
