@@ -122,7 +122,7 @@ Rack Menu
             # Display the menu and respond to choices
             while True:
                 self.display_menu()
-                choice = raw_input("Enter an option: ")				# Change this to "input" when using Python 3
+                choice = input("Enter an option: ")				# Change this to "input" when using Python 3
                 action = self.choices.get(choice)
                 if action:
                     action()
@@ -144,7 +144,7 @@ Rack Menu
         dot = "."
         # Add devices to the list
         if not ip:
-            ip = raw_input("Enter an ip: ")						# Change this to "input" when using Python 3
+            ip = input("Enter an ip: ")						# Change this to "input" when using Python 3
         new_device = True
         ''' Make sure this device is not already in the list.'''
         print("Adding host {0} ".format(ip),)
@@ -245,7 +245,7 @@ Rack Menu
         # Provide selection for sending a single command or multiple commands from a file
         command_list = []
         while True:
-            command = raw_input("Enter an operational command: ")  # Change this to "input" when using Python 3
+            command = input("Enter an operational command: ")  # Change this to "input" when using Python 3
             if not command:
                 break
             else:
@@ -299,7 +299,7 @@ Rack Menu
         else:
             # Provide selection for sending a single set command or multiple set commands
             while True:
-                command = raw_input("Enter a set command: ")  # Change this to "input" when using Python 3
+                command = input("Enter a set command: ")  # Change this to "input" when using Python 3
                 if not command:
                     break
                 else:
@@ -406,7 +406,7 @@ Rack Menu
             else:
                 # Provide selection for sending a single set command or multiple set commands, add to a file
                 while True:
-                    command = raw_input("Enter a set command: ")  # Change this to "input" when using Python 3
+                    command = input("Enter a set command: ")  # Change this to "input" when using Python 3
                     if not command:
                         break
                     else:
