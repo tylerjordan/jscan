@@ -170,7 +170,7 @@ Rack Menu
                     try:
                         dev.open()
                     except Exception as err:
-                        print("\nUnable to open connection to: {0} ERROR: {1}").format(ip, err)
+                        print("\nUnable to open connection to: {0} ERROR: {1}".format(ip, err))
                         return
                     else:
                         print("Continuing with add...")
@@ -183,7 +183,7 @@ Rack Menu
                         self.jrack.new_device(ip, dev.facts['model'], dev.facts['version'], tar_code, dev.facts['hostname'])
                         print(" {0} ({1}) has been added.".format(ip, dev.facts['hostname']))
             except Exception as err:
-                print("Unable to open connection to: {0} ERROR: {1}").format(ip, err)
+                print("Unable to open connection to: {0} ERROR: {1}".format(ip, err))
                 return
             else:
                 #print dev.facts
@@ -268,7 +268,7 @@ Rack Menu
                 try:
                     results = op_command(device.ip, device.hostname, command, Menu.username, Menu.password)
                 except Exception as err:
-                    print("Error running op_command on {0}({1}) ERROR: {2}").format(device.hostname, device.ip, err)
+                    print("Error running op_command on {0}({1}) ERROR: {2}".format(device.hostname, device.ip, err))
                 else:
                     screen_and_log(results, log_file)
                     # Append output to a variable, we'll save when done with output
