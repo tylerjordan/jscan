@@ -19,6 +19,7 @@ from os.path import join
 from getpass import getpass
 from prettytable import PrettyTable
 from ncclient.operations.errors import TimeoutExpiredError
+from sys import stdout
 
 
 class Menu:
@@ -155,14 +156,14 @@ Rack Menu
                 new_device = False
                 break
         ''' Do this if this is a new device.'''
-        stdout.write(dot)
+        print(dot, end='')
         if new_device:
             dev = Device(ip, user=Menu.username, password=Menu.password)
             attribList = ['model', 'version', 'hostname']
             try:
-                stdout.write(dot)
+                print(dot, end='')
                 dev.open()
-                stdout.write(dot)
+                print(dot, end='')
             except ConnectRefusedError:
                 print("\nIssue connecting with NETCONF. Trying to enable NETCONF...")
                 if enable_netconf(ip, Menu.username, Menu.password, Menu.port):
@@ -223,7 +224,7 @@ Rack Menu
         changes = False
         print("Please be patient")
         for device in self.jrack.devices:
-            stdout.write(dot)
+            print(dot, end='')
             dev = Device(device.ip, user=Menu.username, password=Menu.password)
             try:
                 dev.open()
