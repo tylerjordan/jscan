@@ -1,6 +1,6 @@
 # File: utility.py
 # Author: Tyler Jordan
-# Modified: 9/29/2016
+# Modified: 6/19/2020
 # Purpose: Assist CBP engineers with Juniper configuration tasks
 
 import sys, re, os
@@ -30,19 +30,19 @@ def getOptionAnswer(question, options):
     answer = ""
     loop = 0
     while not answer:
-        print question + '?:\n'
+        print(question + '?:\n')
         for option in options:
             loop += 1
-            print '[' + str(loop) + '] -> ' + option
-        answer = raw_input('Your Selection: ')
+            print('[' + str(loop) + '] -> ' + option)
+        answer = input('Your Selection: ')
         try:
             if int(answer) >= 1 and int(answer) <= loop:
                 index = int(answer) - 1
                 return options[index]
         except Exception as err:
-            print "Invalid Entry - ERROR: {0}".format(err)
+            print("Invalid Entry - ERROR: {0}".format(err))
         else:
-            print "Bad Selection"
+            print("Bad Selection")
         answer = ""
         loop = 0
 
@@ -51,11 +51,11 @@ def getOptionMultiAnswer(question, options):
     answer_str = ""
     loop = 0
     while not answer_str and options:
-        print question + '?:\n'
+        print(question + '?:\n')
         for option in options:
             loop += 1
-            print '[' + str(loop) + '] -> ' + option
-        answer_str = raw_input('Your Selections: ')
+            print('[' + str(loop) + '] -> ' + option)
+        answer_str = input('Your Selections: ')
         try:
             answer_list = []
             index_list = answer_str.split(",")
@@ -64,9 +64,9 @@ def getOptionMultiAnswer(question, options):
                 answer_list.append(options[index])
             return answer_list
         except Exception as err:
-            print "Invalid Entry - ERROR: {0}".format(err)
+            print("Invalid Entry - ERROR: {0}".format(err))
         else:
-            print "Bad Selection"
+            print("Bad Selection")
         answer_str = ""
         loop = 0
 
@@ -75,18 +75,18 @@ def getOptionAnswerIndex(question, options):
     answer = ""
     loop = 0
     while not answer:
-        print question + '?:\n'
+        print(question + '?:\n')
         for option in options:
             loop += 1
-            print '[' + str(loop) + '] -> ' + option
-        answer = raw_input('Your Selection: ')
+            print('[' + str(loop) + '] -> ' + option)
+        answer = input('Your Selection: ')
         try:
             if int(answer) >= 1 and int(answer) <= loop:
                 return answer
         except Exception as err:
-            print "Invalid Entry - ERROR: {0}".format(err)
+            print("Invalid Entry - ERROR: {0}".format(err))
         else:
-            print "Bad Selection"
+            print("Bad Selection")
         answer = ""
         loop = 0
 
@@ -94,20 +94,20 @@ def getOptionAnswerIndex(question, options):
 def getInputAnswer(question):
     answer = ""
     while not answer:
-        answer = raw_input(question + '?: ')
+        answer = input(question + '?: ')
     return answer
 
 # Method for asking a Y/N question
 def getYNAnswer(question):
     answer = ""
     while not answer:
-        answer = raw_input(question + '?(y/n): ')
+        answer = input(question + '?(y/n): ')
         if answer == 'Y' or answer == 'y':
             answer = 'y'
         elif answer == 'N' or answer == 'n':
             answer = 'n'
         else:
-            print "Bad Selection"
+            print("Bad Selection")
             answer = ""
     return answer
 
@@ -115,7 +115,7 @@ def getYNAnswer(question):
 def getTFAnswer(question):
     answer = False
     while not answer:
-        ynanswer = raw_input(question + '?(y/n): ')
+        ynanswer = input(question + '?(y/n): ')
         if ynanswer == 'Y' or ynanswer == 'y':
             answer = True
             return answer
@@ -123,7 +123,7 @@ def getTFAnswer(question):
             answer = False
             return answer
         else:
-            print "Bad Selection"
+            print("Bad Selection")
 
 # Return list of files from a directory
 def getFileList(mypath):
@@ -134,16 +134,16 @@ def getFileList(mypath):
                 if isfile(join(mypath,afile)):
                     fileList.append(afile)
         except Exception as err:
-            print "Error accessing files {0} - ERROR: {1}".format(mypath, err)
+            print("Error accessing files {0} - ERROR: {1}".format(mypath, err))
     else:
-        print "Path: {0} does not exist!".format(mypath)
+        print("Path: {0} does not exist!".format(mypath))
     return fileList
 
 # Method for requesting IP address target
 def getTarget():
-    print 64*"="
-    print "= Scan Menu" + 52*" " + "="
-    print 64*"="
+    print(64*"=")
+    print("= Scan Menu" + 52*" " + "=")
+    print(64*"=")
     # Loop through the IPs from the file "ipsitelist.txt"
     loop = 0
     list = {};
@@ -152,37 +152,37 @@ def getTarget():
         loop += 1
         ip,site = line.split(",")
         list[str(loop)] = ip;
-        print '[' + str(loop) + '] ' + ip + ' -> ' + site.strip('\n')
+        print('[' + str(loop) + '] ' + ip + ' -> ' + site.strip('\n'))
 
-    print "[c] Custom IP"
-    print "[x] Exit"
-    print "\n"
+    print("[c] Custom IP")
+    print("[x] Exit")
+    print("\n")
 
     response = ""
     while not response:
-        response = raw_input("Please select an option: ")
+        response = input("Please select an option: ")
         if response >= "1" and response <= str(loop):
             return list[response]
         elif response == "c":
             capturedIp = ""
             while not capturedIp:
-                capturedIp = raw_input("Please enter an IP: ")
+                capturedIp = input("Please enter an IP: ")
                 return capturedIp
         elif response == "x":
             response = "exit"
             return response
         else:
-            print "Bad Selection"
+            print("Bad Selection")
 
 # Common method for accessing multiple routers
 def chooseDevices():
     # Define the routers to deploy the config to (file/range/custom)
-    print "**** Configuration Deployment ****"
+    print("**** Configuration Deployment ****")
     method_resp = getOptionAnswer('How would you like to define the devices', ['file', 'range', 'custom'])
     ip_list = []
     # Choose a file from a list of options
     if method_resp == "file":
-        print "Defining a file..."
+        print("Defining a file...")
         path = '.\ips\*.ips'
         files=glob.glob(path)
         file_resp = getOptionAnswer('Choose a file to use', files)
@@ -193,11 +193,11 @@ def chooseDevices():
 
     # Define a certain range of IPs
     elif method_resp == "range":
-        print "Defining a range..."
+        print("Defining a range...")
 
     # Define one or more IPs individually
     elif method_resp == "custom":
-        print 'Define using /32 IP Addresses'
+        print('Define using /32 IP Addresses')
         answer = ""
         while( answer != 'x' ):
             answer = getInputAnswer('Enter an ip address (x) to exit')
@@ -207,7 +207,7 @@ def chooseDevices():
     # Print the IPs that will be used
     loop = 1;
     for my_ip in ip_list:
-        print 'IP' + str(loop) + '-> ' + my_ip
+        print('IP' + str(loop) + '-> ' + my_ip)
         loop=loop + 1
 
     return ip_list
@@ -220,8 +220,8 @@ def listDictCSV(myListDict, filePathName, keys):
     try:
         f = open(filePathName, 'a')
     except Exception as err:
-        print "Failure opening file in append mode - ERROR: {0}".format(err)
-        print "Be sure {0} isn't open in another program.".format(filePathName)
+        print("Failure opening file in append mode - ERROR: {0}".format(err))
+        print("Be sure {0} isn't open in another program.".format(filePathName))
     else:
         if addKeys:
             #Write all the headings in the CSV
@@ -237,7 +237,7 @@ def listDictCSV(myListDict, filePathName, keys):
             f.write(str(part[keys[-1]]))
             f.write("\n")
         f.close()
-        print "\nCompleted appending to CSV."
+        print("\nCompleted appending to CSV.")
 
 # Converts CSV file to listDict
 def csvListDict(fileName):
@@ -253,7 +253,7 @@ def csvListDict(fileName):
                     values = "".join(line.split()).split(',')
                     a.append({mykeys[n]:values[n] for n in range(0,len(mykeys))})
     except Exception as err:
-        print "Failure converting CSV to listDict - ERROR: {0}".format(err)
+        print("Failure converting CSV to listDict - ERROR: {0}".format(err))
     return myListDict
 
 # Gets a target code
@@ -441,10 +441,10 @@ def enable_netconf(ip, username, password, port, log_file=None):
     try:
         set_command(ip, username, password, port, log_file, netconf_command)
     except Exception as err:
-        print "Failed to enable NETCONF."
+        print("Failed to enable NETCONF.")
         return False
     else:
-        print "Successfully enabled NETCONF!"
+        print("Successfully enabled NETCONF!")
         return True
 
 def run(ip, username, password, port):
@@ -467,10 +467,10 @@ def run(ip, username, password, port):
         connection.timeout = 300
     except errors.SSHError:
         output = '*' * 45 + '\n\nUnable to connect to device: %s on port: %s\n' % (ip, port)
-        print output
+        print(output)
     except errors.AuthenticationError:
         output = '*' * 45 + '\n\nBad username or password for device: %s\n' % ip
-        print output
+        print(output)
     else:
         return connection
 
