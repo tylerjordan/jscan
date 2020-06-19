@@ -490,14 +490,13 @@ def load_with_pyez(merge_opt, overwrite_opt, format_opt, conf_file, log_file, ip
     dot = "."
     screen_and_log(("Applying configuration on {0} ({1}) ".format(hostname, ip)), log_file)
     screen_and_log(dot, log_file)
+    dev = Device(ip, user=username, password=password)
     try:
-        dev = Device(ip, user=username, password=password)
         dev.open()
     except ConnectError as err:
         screen_and_log(("{0}: Cannot connect to device : {1}".format(ip, err)), log_file)
         return
     dev.bind(cu=Config)
-
 
     #print("Try locking the configuration...")
     screen_and_log(dot, log_file)
