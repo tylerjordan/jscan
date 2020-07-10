@@ -349,6 +349,7 @@ def op_command(ip, host_name, command, username, password, port=22):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     device = '*' * 80 + '\n[{0} at {1}] - Command: {2}\n'.format(host_name, ip, command)
+    print("Device: {0}").format(device)
     command = command.strip() + ' | no-more\n'
     output = ''
     try:
