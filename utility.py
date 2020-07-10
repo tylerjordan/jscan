@@ -348,7 +348,7 @@ def op_command(ip, host_name, command, username, password, port=22):
     """
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    device = '*' * 80 + '\n[%s at %s] - Command: %s\n' % (host_name, ip, command)
+    device = '*' * 80 + '\n[{0} at {1}] - Command: {2}\n'.format(host_name, ip, command)
     command = command.strip() + ' | no-more\n'
     output = ''
     try:
@@ -363,10 +363,10 @@ def op_command(ip, host_name, command, username, password, port=22):
         while not stderr.channel.exit_status_ready():
             output += stderr.read()
         stderr.close()
-        output = '%s\n%s' % (device, output)
+        output = '{0}\n{1}'.format(device, output)
         return output
     except paramiko.AuthenticationException:
-        output = '*' * 45 + '\n\nBad username or password for device: %s\n' % ip
+        output = '*' * 45 + '\n\nBad username or password for device: {0}\n'.format(ip)
         return output
 
 def set_command(ip, username, password, port, log_file, command_list):
